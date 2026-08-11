@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promo Delivery V10</title>
+<title>Promo Delivery V11</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
 <header class="top">
   <div class="brand">
-    <div class="logoBox">P</div>
+    <div class="logoBox"><img src="{{ url_for('static', filename='promo-logo.jpeg') }}" alt="Promo Bar & Multi Services"></div>
     <div><b>PROMO DELIVERY</b><small>Ou mande, nou livre 🛵</small></div>
   </div>
   <nav>
@@ -114,7 +114,17 @@
 {% if page == 'admin' %}
 <main class="wrap">
   <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur, manm, piblisite ak rapò. 🔐 {{ auth_name }}</p></section>
-  <div class="stats"><div><small>Nouvo</small><strong id="sNew">0</strong></div><div><small>Preparasyon</small><strong id="sPrep">0</strong></div><div><small>Sou wout</small><strong id="sRoute">0</strong></div><div><small>Livré</small><strong id="sDone">0</strong></div><div><small>Vant livré</small><strong id="sRevenue">0</strong></div><div><small>Manm</small><strong id="sMembers">0</strong></div></div>
+  <div class="stats"><div><small>Nouvo</small><strong id="sNew">0</strong></div><div><small>Preparasyon</small><strong id="sPrep">0</strong></div><div><small>Sou wout</small><strong id="sRoute">0</strong></div><div><small>Livré</small><strong id="sDone">0</strong></div><div><small>Vant livré</small><strong id="sRevenue">0</strong></div><div class="memberStatMain"><small>👥 Total Manm</small><strong id="sMembers">0</strong></div></div>
+
+  <section class="card memberStatsPanel">
+    <div class="sectionHead"><h2>👥 Manm Promo Delivery</h2><small>Kwasans kominote a</small></div>
+    <div class="memberStatGrid">
+      <div><small>Jodi a</small><strong id="sMembersToday">0</strong></div>
+      <div><small>Semèn sa</small><strong id="sMembersWeek">0</strong></div>
+      <div><small>Mwa sa</small><strong id="sMembersMonth">0</strong></div>
+      <div><small>Total</small><strong id="sMembersTotal2">0</strong></div>
+    </div>
+  </section>
 
   <section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
 
@@ -140,7 +150,19 @@
 {% endif %}
 
 {% if page == 'driver' %}
-<main class="wrap"><section class="hero"><h1>Espace Livreur 🛵</h1><p>Byenvini <b>{{ auth_name }}</b>. Men livrezon ki asiyen avè w.</p></section><div id="driverOrders" class="driverGrid"></div></main>
+<main class="wrap">
+  <section class="hero driverHero">
+    <h1>🛵 Dashboard Livreur</h1>
+    <p>Byenvini <b>{{ auth_name }}</b>. Ou wè sèlman kòmand Admin asiyen avè w.</p>
+    <div class="driverMiniStats">
+      <div><small>Kòmand aktif</small><strong id="dActive">0</strong></div>
+      <div><small>Livrezon fini</small><strong id="dDelivered">0</strong></div>
+      <div><small>Total livré</small><strong id="dDeliveredTotal">0 Gdes</strong></div>
+    </div>
+  </section>
+  <div class="driverToolbar"><h2>Kòmand mwen</h2><button onclick="loadDriver()">↻ Rafrechi</button></div>
+  <div id="driverOrders" class="driverGrid"></div>
+</main>
 {% endif %}
 
 <div id="toast" class="toast"></div>

@@ -57,6 +57,8 @@ async function initAdmin(){await reloadAdmin()}
 async function reloadAdmin(){
   products=await api('/api/products');orders=await api('/api/orders');const st=await api('/api/stats');const ds=await api('/api/driver-stats');ads=await api('/api/admin/ads');
   document.getElementById('sNew').textContent=st.Nouveau?.count||0;document.getElementById('sPrep').textContent=st['Préparation']?.count||0;document.getElementById('sRoute').textContent=st['En route']?.count||0;document.getElementById('sDone').textContent=st['Livré']?.count||0;document.getElementById('sRevenue').textContent=fmt(st.revenue_delivered||0);document.getElementById('sMembers').textContent=st.members||0;
+  const mt=document.getElementById('sMembersToday'),mw=document.getElementById('sMembersWeek'),mm=document.getElementById('sMembersMonth'),mt2=document.getElementById('sMembersTotal2');
+  if(mt)mt.textContent=st.members_today||0;if(mw)mw.textContent=st.members_week||0;if(mm)mm.textContent=st.members_month||0;if(mt2)mt2.textContent=st.members||0;
   renderDriverStats(ds);renderAdsAdmin();renderAdminProducts();renderOrders();
 }
 function renderDriverStats(ds){const box=document.getElementById('driverStats');if(!box)return;box.innerHTML=ds.map(d=>`<div class="driverStatCard"><strong>${esc(d.driver)}</strong><span>${d.count} livrezon</span><b>${fmt(d.total)}</b></div>`).join('')}
@@ -76,7 +78,36 @@ async function paymentStatus(id,status){await api('/api/orders/'+id,{method:'PAT
 async function deleteOrder(id){if(confirm('Efase kòmand sa?')){await api('/api/orders/'+id,{method:'DELETE'});await reloadAdmin()}}
 
 async function initDriver(){await loadDriver()}
-async function loadDriver(){orders=await api('/api/driver/orders');document.getElementById('driverOrders').innerHTML=orders.length?orders.map(o=>`<div class="driverCard"><h3>${o.code} <span class="badge ${statusClass(o.status)}">${o.status}</span></h3><p><b>${esc(o.customer)}</b> — ${esc(o.phone)}</p><p>${esc(o.address)}${o.landmark?' — '+esc(o.landmark):''}</p><p>${itemsText(o)}</p><p><b>${fmt(o.total)}</b> — ${o.payment}</p><button onclick="driverStatus(${o.id},'En route')">🛵 Sou wout</button> <button onclick="driverStatus(${o.id},'Livré')">✅ Livré</button></div>`).join(''):'<div class="card muted">Pa gen kòmand aktif pou ou.</div>'}
-async function driverStatus(id,status){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({status})});await loadDriver();toast('Estati mete ajou')}
+function phoneDigits(v){return String(v||'').replace(/\D/g,'')}
+function waPhone(v){let d=phoneDigits(v);if(d.length===8)d='509'+d;return d}
+async function loadDriver(){
+  const stats=await api('/api/driver/me-stats');
+  const a=document.getElementById('dActive'),d=document.getElementById('dDelivered'),t=document.getElementById('dDeliveredTotal');
+  if(a)a.textContent=stats.active||0;if(d)d.textContent=stats.delivered||0;if(t)t.textContent=fmt(stats.delivered_total||0);
+  orders=await api('/api/driver/orders');
+  const box=document.getElementById('driverOrders');
+  if(!box)return;
+  box.innerHTML=orders.length?orders.map(o=>`<div class="driverCard">
+    <div class="driverCardTop"><h3>${o.code}</h3><span class="badge ${statusClass(o.status)}">${o.status}</span></div>
+    <div class="driverCustomer"><b>👤 ${esc(o.customer)}</b><span>📞 ${esc(o.phone)}</span></div>
+    <p class="driverAddress">📍 ${esc(o.address)}${o.landmark?'<br><small>Referans: '+esc(o.landmark)+'</small>':''}</p>
+    <div class="driverItems">${itemsText(o)}</div>
+    <div class="driverPayment"><span><b>${fmt(o.total)}</b></span><span>${esc(o.payment)}${o.payment!=='Cash'?' — '+esc(o.payment_status||''):''}</span></div>
+    <div class="driverContactActions">
+      <a class="driverLink call" href="tel:${phoneDigits(o.phone)}">📞 Rele kliyan</a>
+      <a class="driverLink whatsapp" target="_blank" rel="noopener" href="https://wa.me/${waPhone(o.phone)}?text=${encodeURIComponent('Bonjou '+o.customer+', se '+stats.driver+' nan Promo Delivery pou kòmand '+o.code+'.')}">💬 WhatsApp</a>
+    </div>
+    <div class="driverStatusActions">
+      ${o.status==='Nouveau'?`<button class="prepAction" onclick="driverStatus(${o.id},'Préparation')">📦 Mwen pran kòmand lan</button>`:''}
+      ${o.status!=='En route'&&o.status!=='Livré'?`<button class="routeAction" onclick="driverStatus(${o.id},'En route')">🛵 Mwen sou wout</button>`:''}
+      <button class="doneAction" onclick="driverStatus(${o.id},'Livré')">✅ Livrezon fèt</button>
+    </div>
+  </div>`).join(''):'<div class="card emptyDriver"><b>✅ Pa gen kòmand aktif pou ou.</b><p>Nouvo kòmand Admin asiyen avè w ap parèt isit la.</p></div>';
+}
+async function driverStatus(id,status){
+  if(status==='Livré'&&!confirm('Konfime livrezon sa fèt?'))return;
+  await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({status})});
+  await loadDriver();toast('Estati mete ajou: '+status)
+}
 function copyOrderSummaryById(id){const o=orders.find(x=>x.id===id);if(!o)return;const txt=`PROMO DELIVERY\nKòmand: ${o.code}\nKliyan: ${o.customer}\nTelefòn: ${o.phone}\nAdrès: ${o.address}${o.landmark?' - '+o.landmark:''}\nAtik: ${o.items.map(i=>i.name+' x'+i.qty).join(', ')}\nTotal: ${fmt(o.total)}\nPeman: ${o.payment}${o.transaction_id?' / Tx: '+o.transaction_id:''}${o.payment!=='Cash'?' / '+o.payment_status:''}\nEstati: ${o.status}`;if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Mesaj kòmand lan kopye'));else prompt('Kopye mesaj sa:',txt)}
 function toggleLoginRole(){const role=document.getElementById('loginRole'),user=document.getElementById('loginUser');if(!role||!user)return;if(role.value==='driver')user.placeholder='Jeff / Duckens / Jn Fritz';else if(role.value==='admin')user.placeholder='admin';else user.placeholder='username manm ou'}

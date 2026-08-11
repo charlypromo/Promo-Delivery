@@ -266,7 +266,7 @@ def driver():
 
 @app.route("/health")
 def health():
-    return {"ok": True, "service": "Promo Delivery V10"}
+    return {"ok": True, "service": "Promo Delivery V11"}
 
 
 @app.get("/api/me")
@@ -450,7 +450,7 @@ def patch_order(oid):
                 return jsonify({"error": "invalid_payment_status"}), 400
             o.payment_status = value
     elif role == "driver" and o.driver == session.get("driver"):
-        if "status" not in d or str(d["status"]) not in ("En route", "Livré"):
+        if "status" not in d or str(d["status"]) not in ("Préparation", "En route", "Livré"):
             return jsonify({"error": "forbidden"}), 403
         o.status = str(d["status"])
     else:
@@ -486,8 +486,32 @@ def stats():
         result[status] = {"count": count, "total": float(total or 0)}
     delivered = db.session.query(db.func.coalesce(db.func.sum(Order.total), 0)).filter(Order.status == "Livré").scalar()
     result["revenue_delivered"] = float(delivered or 0)
+    now = datetime.utcnow()
+    today_start = datetime(now.year, now.month, now.day)
+    week_start = today_start.fromordinal(today_start.toordinal() - today_start.weekday())
+    month_start = datetime(now.year, now.month, 1)
     result["members"] = User.query.count()
+    result["members_today"] = User.query.filter(User.created_at >= today_start).count()
+    result["members_week"] = User.query.filter(User.created_at >= week_start).count()
+    result["members_month"] = User.query.filter(User.created_at >= month_start).count()
     return jsonify(result)
+
+
+@app.get("/api/driver/me-stats")
+@driver_required
+def driver_me_stats():
+    name = session.get("driver")
+    active = Order.query.filter(Order.driver == name, Order.status.notin_(("Livré", "Annulé"))).count()
+    delivered = Order.query.filter_by(driver=name, status="Livré").count()
+    delivered_total = db.session.query(db.func.coalesce(db.func.sum(Order.total), 0)).filter(
+        Order.driver == name, Order.status == "Livré"
+    ).scalar()
+    return jsonify({
+        "driver": name,
+        "active": active,
+        "delivered": delivered,
+        "delivered_total": float(delivered_total or 0)
+    })
 
 
 @app.get("/api/driver-stats")
