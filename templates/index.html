@@ -1,0 +1,110 @@
+
+<!doctype html>
+<html lang="ht">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Promo Delivery</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-page="{{ page }}">
+<header class="top">
+  <div class="brand">
+    <div class="logoBox">P</div>
+    <div><b>PROMO DELIVERY</b><small>Ou mande, nou livre 🛵</small></div>
+  </div>
+  <nav>
+    <a href="/" class="{{ 'active' if page=='client' else '' }}">Client</a>
+    <a href="/admin" class="{{ 'active' if page=='admin' else '' }}">Admin</a>
+    <a href="/driver" class="{{ 'active' if page=='driver' else '' }}">Livreur</a>
+  </nav>
+</header>
+
+{% if page == 'client' %}
+<main class="wrap">
+  <section class="hero"><h1>Sa w bezwen an, nou pote l ba ou.</h1><p>Pain, sucre, dlo, manje, gaz propane, taxi, ti komisyon ak plis ankò.</p></section>
+
+  <section class="card">
+    <h2>🔎 Swiv yon kòmand</h2>
+    <div class="row"><input id="trackId" placeholder="Eg. PD-123456"><button onclick="trackOrder()">Chèche</button></div>
+    <div id="trackResult"></div>
+  </section>
+
+  <h2>Kategori</h2><div id="cats" class="cats"></div>
+  <h2>Pwodwi & sèvis</h2><div id="products" class="products"></div>
+
+  <section class="card">
+    <h2>🛒 Panier</h2><div id="cart"></div>
+    <div class="row2">
+      <label>Zòn<select id="zone" onchange="syncFee()">
+        <option value="250">Dexia / Sant vil — 250</option>
+        <option value="350">Nan zòn Okay — 350</option>
+        <option value="500">Andeyò sant vil — 500</option>
+        <option value="0">Pickup — 0</option>
+      </select></label>
+      <label>Frè livraison<input id="fee" type="number" value="250" oninput="renderCart()"></label>
+    </div>
+    <div class="total"><span>Total</span><strong id="total">0 Gdes</strong></div>
+  </section>
+
+  <section class="card">
+    <h2>📍 Enfòmasyon livraison</h2>
+    <div class="row2">
+      <label>Non<input id="name"></label><label>Telefòn<input id="phone"></label>
+    </div>
+    <label>Adrès<textarea id="address"></textarea></label>
+    <div class="row2">
+      <label>Referans kote<input id="landmark"></label>
+      <label>Peman<select id="payment"><option>Cash</option><option>MonCash</option><option>NatCash</option></select></label>
+    </div>
+    <label>Nòt<textarea id="note"></textarea></label>
+    <button class="primary" onclick="submitOrder()">VALIDÉ KÒMAND LAN</button>
+    <div id="success"></div>
+  </section>
+</main>
+{% endif %}
+
+{% if page == 'admin' %}
+<main class="wrap">
+  <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur ak rapò.</p></section>
+  <div class="stats">
+    <div><small>Nouvo</small><strong id="sNew">0</strong></div>
+    <div><small>Preparasyon</small><strong id="sPrep">0</strong></div>
+    <div><small>Sou wout</small><strong id="sRoute">0</strong></div>
+    <div><small>Livré</small><strong id="sDone">0</strong></div>
+    <div><small>Vant livré</small><strong id="sRevenue">0</strong></div>
+  </div>
+
+  <section class="card">
+    <h2>➕ Ajoute pwodwi</h2>
+    <div class="row2">
+      <label>Non<input id="pname"></label><label>Pri<input id="pprice" type="number"></label>
+    </div>
+    <div class="row2">
+      <label>Kategori<select id="pcat"><option value="pain">Pain</option><option value="sucre">Sucre</option><option value="eau">Dlo</option><option value="food">Manje</option><option value="gas">Gaz</option><option value="taxi">Taxi</option><option value="other">Autres</option></select></label>
+      <label>Icon<input id="picon" placeholder="🥤"></label>
+    </div>
+    <button onclick="addProduct()">Ajoute</button>
+    <div id="productManager"></div>
+  </section>
+
+  <section class="card"><h2>📦 Kòmand yo</h2><div class="tablewrap"><table><thead><tr>
+    <th>#</th><th>Kliyan</th><th>Atik</th><th>Total</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th>
+  </tr></thead><tbody id="orders"></tbody></table></div></section>
+</main>
+{% endif %}
+
+{% if page == 'driver' %}
+<main class="wrap">
+  <section class="hero"><h1>Espace Livreur 🛵</h1><p>Chwazi non w epi jere livrezon ki asiyen avè w.</p></section>
+  <section class="card">
+    <label>Chwazi livreur<select id="driverSelect" onchange="loadDriver()"><option>Junior</option><option>Jonathan</option><option>Edwin</option></select></label>
+  </section>
+  <div id="driverOrders" class="driverGrid"></div>
+</main>
+{% endif %}
+
+<div id="toast" class="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
