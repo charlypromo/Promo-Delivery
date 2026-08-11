@@ -1,4 +1,4 @@
-@echo off
-set COOKIE_SECURE=0
-python app.py
-pause
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+gunicorn==22.0.0
+psycopg[binary]==3.2.9

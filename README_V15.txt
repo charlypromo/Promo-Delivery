@@ -1,11 +1,15 @@
-PROMO DELIVERY V15 — PROFESSIONAL
-- Tout fonksyon V14 yo konsève
-- Mot de passe oublié ak demann reset pou Admin
-- Admin ka bay modpas tanporè pou manm
-- Jesyon kont livreur nan Admin
-- Ajoute / aktive / dezaktive / chanje modpas livreur
-- Dropdown livreur dinamik
-- Recherche ak filtè kòmand
-- Dashboard Finans Cash / MonCash / NatCash: jodi a / semèn / mwa
-- Mobile polish
-- Migration bazdone SQLite/PostgreSQL pi solid
+PROMO DELIVERY V13 — FINALISATION & SECURITY
+===========================================
+Nouvo nan V13:
+- Paj Kont mwen pou manm yo
+- Manm ka modifye non/telefòn epi chanje modpas avèk modpas aktyèl la
+- Modpas nouvo mande omwen 8 karaktè
+- Sesyon limite a 12 èdtan
+- Security headers sou repons HTTP
+- Paj/API prive yo sèvi ak no-store cache
+- Dashboard Admin: rezime operasyon jodi a
+- Total MonCash/NatCash konfime jodi a
+- Export kòmand CSV
+- Export manm CSV
+- Backup JSON operasyonèl san password hashes
+- Tout fonksyon V12 yo konsève

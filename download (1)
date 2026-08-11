@@ -241,6 +241,12 @@
     <div class="row2"><label>Tit<input id="adTitle" placeholder="Eg. Gwo Bal Samdi"></label><label>Lyen / kontak<input id="adLink" placeholder="https://... oswa tel:"></label></div>
     <label>Deskripsyon<textarea id="adDescription" placeholder="Ti mesaj piblisite a"></textarea></label>
     <label>URL imaj / flyer<input id="adImage" placeholder="https://... (opsyonèl)"></label>
+      <label>Upload foto / flyer
+        <input id="adImageFile" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" onchange="previewAdImage(this)">
+        <small class="muted">PNG, JPG oswa JPEG — max 3 MB</small>
+      </label>
+      <div id="adImagePreview" class="adImagePreview"></div>
+      <input id="adImageData" type="hidden">
     <div class="row2"><label>Kòmanse<input id="adStart" type="date"></label><label>Fini<input id="adEnd" type="date"></label></div>
     <button onclick="addAd()">Ajoute anons</button>
     <div id="adManager" class="adManager"></div>
