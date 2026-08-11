@@ -239,7 +239,7 @@ def seed_ads():
     db.session.add(Ad(
         title="📣 Espas Piblisite Promo Delivery",
         description="Admin ka mete Paryaj Lakay, La Grâce Solutions, gwo bal, spektak ak lòt anons isit la.",
-        image_url="", target_url="", image_data=d.get("image_data",""), active=True
+        image_url="", target_url="", image_data="", active=True
     ))
     db.session.commit()
 
