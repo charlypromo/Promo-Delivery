@@ -883,27 +883,21 @@ def driver_stats():
 
 
 def ensure_order_columns():
-    """Add missing Order columns without dropping existing data."""
     inspector = inspect(db.engine)
     if not inspector.has_table("orders"):
-        db.create_all()
-        inspector = inspect(db.engine)
+        return
     cols = {c["name"] for c in inspector.get_columns("orders")}
     wanted = {
-        "customer_id": "INTEGER",
-        "transaction_id": "VARCHAR(120) DEFAULT ''",
-        "paid_amount": "FLOAT DEFAULT 0",
-        "payment_status": "VARCHAR(50) DEFAULT 'Cash'",
-        "cash_received": "FLOAT DEFAULT 0",
-        "accepted_at": "TIMESTAMP",
-        "en_route_at": "TIMESTAMP",
-        "delivered_at": "TIMESTAMP",
+        "customer_id":"INTEGER","transaction_id":"VARCHAR(120) DEFAULT ''",
+        "paid_amount":"FLOAT DEFAULT 0","payment_status":"VARCHAR(50) DEFAULT 'Cash'",
+        "cash_received":"FLOAT DEFAULT 0","accepted_at":"TIMESTAMP",
+        "en_route_at":"TIMESTAMP","delivered_at":"TIMESTAMP"
     }
-    changed = False
+    changed=False
     for name, sql_type in wanted.items():
         if name not in cols:
             db.session.execute(text(f"ALTER TABLE orders ADD COLUMN {name} {sql_type}"))
-            changed = True
+            changed=True
     if changed:
         db.session.commit()
 
