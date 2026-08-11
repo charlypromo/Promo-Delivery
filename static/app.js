@@ -65,8 +65,32 @@ async function reloadAdmin(){
   document.getElementById('sRevenue').textContent=fmt(st.revenue_delivered||0);renderAdminProducts();renderOrders();
 }
 function renderAdminProducts(){
-  document.getElementById('productManager').innerHTML=products.map(p=>`<div class="cartrow"><span>${p.icon} <b>${p.name}</b> — ${p.price?fmt(p.price):'Pri sou demann'}</span><button onclick="delProduct(${p.id})">Retire</button></div>`).join('');
+  document.getElementById('productManager').innerHTML=products.map(p=>`
+    <div class="productEditRow">
+      <div class="editIcon">${p.icon}</div>
+      <div class="editFields">
+        <input id="pn-${p.id}" value="${String(p.name).replace(/"/g,'&quot;')}" aria-label="Non pwodwi">
+        <input id="pp-${p.id}" type="number" min="0" value="${Number(p.price||0)}" aria-label="Pri">
+      </div>
+      <div class="editActions">
+        <button class="saveBtn" onclick="saveProduct(${p.id})">💾 Sove</button>
+        <button class="removeBtn" onclick="delProduct(${p.id})">Retire</button>
+      </div>
+    </div>`).join('');
 }
+
+async function saveProduct(id){
+  const name=document.getElementById('pn-'+id).value.trim();
+  const price=Number(document.getElementById('pp-'+id).value||0);
+  if(!name)return alert('Mete non pwodwi a.');
+  await api('/api/products/'+id,{
+    method:'PUT',
+    body:JSON.stringify({name,price})
+  });
+  await reloadAdmin();
+  toast('✅ Pwodwi ak pri mete ajou');
+}
+
 async function addProduct(){
   const name=document.getElementById('pname').value.trim();if(!name)return alert('Mete non pwodwi a');
   await api('/api/products',{method:'POST',body:JSON.stringify({name,price:Number(document.getElementById('pprice').value||0),category:document.getElementById('pcat').value,icon:document.getElementById('picon').value||'📦'})});
@@ -80,7 +104,7 @@ function renderOrders(){
     <td>${o.address}${o.landmark?'<br><small>📌 '+o.landmark+'</small>':''}</td>
     <td><span class="badge ${statusClass(o.status)}">${o.status}</span><br><select onchange="patchOrder(${o.id},'status',this.value)">${['Nouveau','Préparation','En route','Livré','Annulé'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td>
     <td><select onchange="patchOrder(${o.id},'driver',this.value)"><option value="">Non assigné</option>${['Junior','Jonathan','Edwin'].map(d=>`<option ${d===o.driver?'selected':''}>${d}</option>`).join('')}</select></td>
-    <td><button onclick="deleteOrder(${o.id})">Efase</button></td></tr>`).join(''):'<tr><td colspan="8">Pa gen kòmand.</td></tr>';
+    <td><button onclick="copyOrderSummaryById(${o.id})">📋 Mesaj</button> <button onclick="deleteOrder(${o.id})">Efase</button></td></tr>`).join(''):'<tr><td colspan="8">Pa gen kòmand.</td></tr>';
 }
 async function patchOrder(id,key,val){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({[key]:val})});await reloadAdmin();toast('Mete ajou')}
 async function deleteOrder(id){if(confirm('Efase kòmand sa?')){await api('/api/orders/'+id,{method:'DELETE'});await reloadAdmin()}}
@@ -94,3 +118,22 @@ async function loadDriver(){
     <button onclick="driverStatus(${o.id},'En route')">🛵 Sou wout</button> <button onclick="driverStatus(${o.id},'Livré')">✅ Livré</button></div>`).join(''):'<div class="card muted">Pa gen kòmand aktif pou '+d+'.</div>';
 }
 async function driverStatus(id,status){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({status})});await loadDriver();toast('Estati mete ajou')}
+
+function copyOrderSummaryById(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o)return;
+  const txt=`PROMO DELIVERY
+Kòmand: ${o.code}
+Kliyan: ${o.customer}
+Telefòn: ${o.phone}
+Adrès: ${o.address}${o.landmark?' - '+o.landmark:''}
+Atik: ${o.items.map(i=>i.name+' x'+i.qty).join(', ')}
+Total: ${fmt(o.total)}
+Peman: ${o.payment}
+Estati: ${o.status}`;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>toast('Mesaj kòmand lan kopye'));
+  }else{
+    prompt('Kopye mesaj sa:',txt);
+  }
+}

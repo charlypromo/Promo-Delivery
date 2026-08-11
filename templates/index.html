@@ -76,7 +76,7 @@
   </div>
 
   <section class="card">
-    <h2>➕ Ajoute pwodwi</h2>
+    <h2>🧾 Jesyon pwodwi & pri</h2><p class="muted">Ou ka ajoute nouvo pwodwi oswa modifye non ak pri pwodwi ki deja la.</p>
     <div class="row2">
       <label>Non<input id="pname"></label><label>Pri<input id="pprice" type="number"></label>
     </div>
@@ -105,6 +105,6 @@
 {% endif %}
 
 <div id="toast" class="toast"></div>
-<script src="/static/app.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

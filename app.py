@@ -102,6 +102,30 @@ def add_product():
     db.session.add(p); db.session.commit()
     return jsonify({"ok":True,"id":p.id})
 
+
+@app.put("/api/products/<int:pid>")
+def edit_product(pid):
+    p = db.session.get(Product, pid)
+    if not p:
+        return jsonify({"error":"not_found"}), 404
+    d = request.get_json(silent=True) or {}
+    if "name" in d:
+        name = str(d.get("name","")).strip()
+        if name:
+            p.name = name
+    if "category" in d:
+        p.category = str(d.get("category","other"))
+    if "description" in d:
+        p.description = str(d.get("description",""))
+    if "price" in d:
+        p.price = float(d.get("price",0) or 0)
+    if "icon" in d:
+        p.icon = str(d.get("icon","📦")) or "📦"
+    if "active" in d:
+        p.active = bool(d.get("active"))
+    db.session.commit()
+    return jsonify({"ok":True,"product":p.as_dict()})
+
 @app.delete("/api/products/<int:pid>")
 def remove_product(pid):
     p=db.session.get(Product,pid)
