@@ -104,7 +104,7 @@ function renderOrders(){
     <td>${itemsText(o)}${o.note?'<br><small>📝 '+o.note+'</small>':''}</td><td><b>${fmt(o.total)}</b><br><small>Fee ${fmt(o.delivery_fee)}</small></td>
     <td>${o.address}${o.landmark?'<br><small>📌 '+o.landmark+'</small>':''}</td>
     <td><span class="badge ${statusClass(o.status)}">${o.status}</span><br><select onchange="patchOrder(${o.id},'status',this.value)">${['Nouveau','Préparation','En route','Livré','Annulé'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td>
-    <td><select onchange="patchOrder(${o.id},'driver',this.value)"><option value="">Non assigné</option>${['Junior','Jonathan','Edwin'].map(d=>`<option ${d===o.driver?'selected':''}>${d}</option>`).join('')}</select></td>
+    <td><select onchange="patchOrder(${o.id},'driver',this.value)"><option value="">Non assigné</option>${['Jeff','Duckens','Jn Fritz'].map(d=>`<option ${d===o.driver?'selected':''}>${d}</option>`).join('')}</select></td>
     <td><button onclick="copyOrderSummaryById(${o.id})">📋 Mesaj</button> <button onclick="deleteOrder(${o.id})">Efase</button></td></tr>`).join(''):'<tr><td colspan="8">Pa gen kòmand.</td></tr>';
 }
 async function patchOrder(id,key,val){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({[key]:val})});await reloadAdmin();toast('Mete ajou')}
