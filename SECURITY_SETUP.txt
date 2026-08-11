@@ -1,9 +1,19 @@
-services:
-  - type: web
-    name: promo-delivery
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.13.5
+PROMO DELIVERY - SECURITY SETUP (Render)
+
+Ajoute Environment Variables sa yo sou Render anvan/depi apre deploy la:
+SECRET_KEY = mete yon long valè o aza (pa pataje li)
+ADMIN_USER = admin
+ADMIN_PASSWORD = chwazi pwòp modpas Admin ou
+DRIVER_JUNIOR_PASSWORD = chwazi modpas Junior
+DRIVER_JONATHAN_PASSWORD = chwazi modpas Jonathan
+DRIVER_EDWIN_PASSWORD = chwazi modpas Edwin
+COOKIE_SECURE = 1
+
+Enpòtan: Si ou pa mete variables yo, aplikasyon an gen default pou tès sèlman. Pou sit piblik la, chanje yo sou Render.
+
+Aksè:
+/              = kliyan (pa bezwen login)
+/login         = connexion Admin/Livreur
+/admin         = Admin sèlman
+/driver        = Livreur ki konekte sèlman
+/logout        = dekonekte

@@ -1,6 +1,4 @@
-Flask>=3.0,<4
-Flask-SQLAlchemy>=3.1,<4
-SQLAlchemy>=2.0,<3
-gunicorn>=22,<24
-psycopg2-binary>=2.9,<3
-Werkzeug>=3.0,<4
+@echo off
+set COOKIE_SECURE=0
+python app.py
+pause
