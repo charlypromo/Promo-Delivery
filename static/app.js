@@ -60,12 +60,28 @@ async function trackOrder(){
 
 async function initAdmin(){await reloadAdmin()}
 async function reloadAdmin(){
-  products=await api('/api/products');orders=await api('/api/orders');const st=await api('/api/stats');
+  products=await api('/api/products');orders=await api('/api/orders');const ds=await api('/api/driver-stats');
   document.getElementById('sNew').textContent=st.Nouveau?.count||0;document.getElementById('sPrep').textContent=st['Préparation']?.count||0;
   document.getElementById('sRoute').textContent=st['En route']?.count||0;document.getElementById('sDone').textContent=st['Livré']?.count||0;
   document.getElementById('sRevenue').textContent=fmt(st.revenue_delivered||0);renderAdminProducts();renderOrders();
+  renderDriverStats(ds);
 }
-function renderAdminProducts(){
+
+  
+function renderDriverStats(ds){
+  const box=document.getElementById('driverStats');
+  if(!box) return;
+
+  box.innerHTML=ds.map(d=>`
+    <div class="driverStatCard">
+      <strong>${d.driver}</strong>
+      <span>${d.count} livrezon</span>
+      <span>${fmt(d.total)}</span>
+    </div>
+  `).join('');
+}
+
+ function renderAdminProducts()
   document.getElementById('productManager').innerHTML=products.map(p=>`
     <div class="productEditRow">
       <div class="editIcon">${p.icon}</div>
