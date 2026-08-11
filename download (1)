@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promo Delivery V13</title>
+<title>Promo Delivery V14</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
@@ -221,7 +221,7 @@
     <div class="driverMiniStats">
       <div><small>Kòmand aktif</small><strong id="dActive">0</strong></div>
       <div><small>Livrezon fini</small><strong id="dDelivered">0</strong></div>
-      <div><small>Total livré</small><strong id="dDeliveredTotal">0 Gdes</strong></div>
+      <div><small>Total livré</small><strong id="dDeliveredTotal">0 Gdes</strong></div><div><small>Cash resevwa</small><strong id="dCashCollected">0 Gdes</strong></div>
     </div>
   </section>
   <div class="driverToolbar"><h2>Kòmand mwen</h2><button onclick="loadDriver()">↻ Rafrechi</button></div>

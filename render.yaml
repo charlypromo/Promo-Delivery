@@ -1,10 +1,15 @@
-PROMO DELIVERY V12
-===================
-Nouvo nan V12:
-- Kliyan MonCash/NatCash antre Nimewo Tranzaksyon + Montan Peye
-- Admin wè Total kòmand + Montan Peye + Tx ID + diferans
-- Sistèm montre Montan OK / Manke / Depase
-- Admin toujou konfime oswa refize peman manyèlman
-- Jesyon Manm: lis manm, username, telefòn, dat enskripsyon, kantite kòmand, kantite livré, valè kòmand
-- Rechèch manm pa non, username oswa telefòn
-- Tout fonksyon V11 konsève
+PROMO DELIVERY V13 — FINALISATION & SECURITY
+===========================================
+Nouvo nan V13:
+- Paj Kont mwen pou manm yo
+- Manm ka modifye non/telefòn epi chanje modpas avèk modpas aktyèl la
+- Modpas nouvo mande omwen 8 karaktè
+- Sesyon limite a 12 èdtan
+- Security headers sou repons HTTP
+- Paj/API prive yo sèvi ak no-store cache
+- Dashboard Admin: rezime operasyon jodi a
+- Total MonCash/NatCash konfime jodi a
+- Export kòmand CSV
+- Export manm CSV
+- Backup JSON operasyonèl san password hashes
+- Tout fonksyon V12 yo konsève

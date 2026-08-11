@@ -102,8 +102,8 @@ function phoneDigits(v){return String(v||'').replace(/\D/g,'')}
 function waPhone(v){let d=phoneDigits(v);if(d.length===8)d='509'+d;return d}
 async function loadDriver(){
   const stats=await api('/api/driver/me-stats');
-  const a=document.getElementById('dActive'),d=document.getElementById('dDelivered'),t=document.getElementById('dDeliveredTotal');
-  if(a)a.textContent=stats.active||0;if(d)d.textContent=stats.delivered||0;if(t)t.textContent=fmt(stats.delivered_total||0);
+  const a=document.getElementById('dActive'),d=document.getElementById('dDelivered'),t=document.getElementById('dDeliveredTotal'),cr=document.getElementById('dCashCollected');
+  if(a)a.textContent=stats.active||0;if(d)d.textContent=stats.delivered||0;if(t)t.textContent=fmt(stats.delivered_total||0);if(cr)cr.textContent=fmt(stats.cash_collected||0);
   orders=await api('/api/driver/orders');
   const box=document.getElementById('driverOrders');
   if(!box)return;
@@ -113,6 +113,7 @@ async function loadDriver(){
     <p class="driverAddress">📍 ${esc(o.address)}${o.landmark?'<br><small>Referans: '+esc(o.landmark)+'</small>':''}</p>
     <div class="driverItems">${itemsText(o)}</div>
     <div class="driverPayment"><span><b>${fmt(o.total)}</b></span><span>${esc(o.payment)}${o.payment!=='Cash'?' — '+esc(o.payment_status||''):''}</span></div>
+    ${o.payment==='Cash'?`<div class="cashReceiveBox"><label>💵 Cash resevwa</label><div><input id="cash-${o.id}" type="number" min="0" step="1" value="${o.cash_received||0}" placeholder="${o.total}"><button onclick="saveDriverCash(${o.id})">Anrejistre</button></div></div>`:''}
     <div class="driverContactActions">
       <a class="driverLink call" href="tel:${phoneDigits(o.phone)}">📞 Rele kliyan</a>
       <a class="driverLink whatsapp" target="_blank" rel="noopener" href="https://wa.me/${waPhone(o.phone)}?text=${encodeURIComponent('Bonjou '+o.customer+', se '+stats.driver+' nan Promo Delivery pou kòmand '+o.code+'.')}">💬 WhatsApp</a>
@@ -124,6 +125,12 @@ async function loadDriver(){
     </div>
   </div>`).join(''):'<div class="card emptyDriver"><b>✅ Pa gen kòmand aktif pou ou.</b><p>Nouvo kòmand Admin asiyen avè w ap parèt isit la.</p></div>';
 }
+async function saveDriverCash(id){
+  const el=document.getElementById('cash-'+id);if(!el)return;
+  const amount=Number(el.value||0);
+  await api('/api/driver/orders/'+id+'/cash',{method:'POST',body:JSON.stringify({amount})});
+  toast('Cash resevwa anrejistre');await loadDriver();
+}
 async function driverStatus(id,status){
   if(status==='Livré'&&!confirm('Konfime livrezon sa fèt?'))return;
   await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({status})});
@@ -131,3 +138,25 @@ async function driverStatus(id,status){
 }
 function copyOrderSummaryById(id){const o=orders.find(x=>x.id===id);if(!o)return;const txt=`PROMO DELIVERY\nKòmand: ${o.code}\nKliyan: ${o.customer}\nTelefòn: ${o.phone}\nAdrès: ${o.address}${o.landmark?' - '+o.landmark:''}\nAtik: ${o.items.map(i=>i.name+' x'+i.qty).join(', ')}\nTotal: ${fmt(o.total)}\nPeman: ${o.payment}${o.transaction_id?' / Tx: '+o.transaction_id:''}${o.payment!=='Cash'?' / Peye: '+fmt(o.paid_amount||0)+' / '+o.payment_status:''}\nEstati: ${o.status}`;if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Mesaj kòmand lan kopye'));else prompt('Kopye mesaj sa:',txt)}
 function toggleLoginRole(){const role=document.getElementById('loginRole'),user=document.getElementById('loginUser');if(!role||!user)return;if(role.value==='driver')user.placeholder='Jeff / Duckens / Jn Fritz';else if(role.value==='admin')user.placeholder='admin';else user.placeholder='username manm ou'}
+
+function notifyOrderChanges(list){
+  try{
+    const key='promoLastStatuses';
+    const prev=JSON.parse(localStorage.getItem(key)||'{}');
+    const next={};
+    (list||[]).forEach(o=>{
+      next[o.id]=o.status;
+      if(prev[o.id] && prev[o.id]!==o.status){
+        const msg=`Kòmand ${o.code}: ${o.status}`;
+        toast('🔔 '+msg);
+        if('Notification' in window && Notification.permission==='granted') new Notification('Promo Delivery',{body:msg});
+      }
+    });
+    localStorage.setItem(key,JSON.stringify(next));
+  }catch(e){}
+}
+async function enablePromoNotifications(){
+  if('Notification' in window && Notification.permission==='default'){
+    try{await Notification.requestPermission()}catch(e){}
+  }
+}

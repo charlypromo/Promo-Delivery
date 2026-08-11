@@ -144,6 +144,10 @@ class Order(db.Model):
             "created_at": self.created_at.isoformat(timespec="seconds") if self.created_at else ""
         }
 
+    cash_received = db.Column(db.Float, nullable=False, default=0)
+    accepted_at = db.Column(db.DateTime, nullable=True)
+    en_route_at = db.Column(db.DateTime, nullable=True)
+    delivered_at = db.Column(db.DateTime, nullable=True)
 
 class Ad(db.Model):
     __tablename__ = "ads"
@@ -317,7 +321,7 @@ def driver():
 
 @app.route("/health")
 def health():
-    return {"ok": True, "service": "Promo Delivery V13"}
+    return {"ok": True, "service": "Promo Delivery V14"}
 
 
 @app.get("/api/me")
@@ -502,6 +506,12 @@ def patch_order(oid):
     d = request.get_json(silent=True) or {}
     if role == "admin":
         if "status" in d: o.status = str(d["status"])
+        if o.status == "Préparation" and not o.accepted_at:
+            o.accepted_at = datetime.utcnow()
+        elif o.status == "En route" and not o.en_route_at:
+            o.en_route_at = datetime.utcnow()
+        elif o.status == "Livré" and not o.delivered_at:
+            o.delivered_at = datetime.utcnow()
         if "driver" in d: o.driver = str(d["driver"])
         if "payment_status" in d and o.payment in ("MonCash", "NatCash"):
             value = str(d["payment_status"])
@@ -512,6 +522,12 @@ def patch_order(oid):
         if "status" not in d or str(d["status"]) not in ("Préparation", "En route", "Livré"):
             return jsonify({"error": "forbidden"}), 403
         o.status = str(d["status"])
+        if o.status == "Préparation" and not o.accepted_at:
+            o.accepted_at = datetime.utcnow()
+        elif o.status == "En route" and not o.en_route_at:
+            o.en_route_at = datetime.utcnow()
+        elif o.status == "Livré" and not o.delivered_at:
+            o.delivered_at = datetime.utcnow()
     else:
         return jsonify({"error": "unauthorized"}), 401
     db.session.commit()
@@ -610,7 +626,7 @@ def export_members_csv():
 @admin_required
 def admin_backup():
     payload = {
-        "version": "Promo Delivery V13",
+        "version": "Promo Delivery V14",
         "generated_at": datetime.utcnow().isoformat(timespec="seconds"),
         "members": [{
             "id": u.id, "full_name": u.full_name, "phone": u.phone, "username": u.username,
@@ -644,6 +660,26 @@ def stats():
     return jsonify(result)
 
 
+@app.post("/api/driver/orders/<int:order_id>/cash")
+@driver_required
+def driver_cash_received(order_id):
+    o = db.session.get(Order, order_id)
+    if not o or o.driver != session.get("driver"):
+        return jsonify({"error": "forbidden"}), 403
+    if o.payment != "Cash":
+        return jsonify({"error": "cash_only"}), 400
+    d = request.get_json(silent=True) or {}
+    try:
+        amount = float(d.get("amount", 0))
+    except Exception:
+        amount = 0
+    if amount < 0:
+        return jsonify({"error": "invalid_amount"}), 400
+    o.cash_received = amount
+    db.session.commit()
+    return jsonify({"ok": True, "cash_received": amount})
+
+
 @app.get("/api/driver/me-stats")
 @driver_required
 def driver_me_stats():
@@ -653,11 +689,15 @@ def driver_me_stats():
     delivered_total = db.session.query(db.func.coalesce(db.func.sum(Order.total), 0)).filter(
         Order.driver == name, Order.status == "Livré"
     ).scalar()
+    cash_collected = db.session.query(db.func.coalesce(db.func.sum(Order.cash_received), 0)).filter(
+        Order.driver == name, Order.payment == "Cash"
+    ).scalar()
     return jsonify({
         "driver": name,
         "active": active,
         "delivered": delivered,
-        "delivered_total": float(delivered_total or 0)
+        "delivered_total": float(delivered_total or 0),
+        "cash_collected": float(cash_collected or 0)
     })
 
 
@@ -675,6 +715,22 @@ def ensure_order_columns():
     inspector = inspect(db.engine)
     if not inspector.has_table("orders"):
         db.create_all(); inspector = inspect(db.engine)
+
+        # V14 delivery-control columns (safe for existing databases)
+        try:
+            cols = {row[1] for row in db.session.execute(db.text("PRAGMA table_info(orders)")).fetchall()}
+            if cols:
+                if "cash_received" not in cols:
+                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN cash_received FLOAT DEFAULT 0"))
+                if "accepted_at" not in cols:
+                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN accepted_at DATETIME"))
+                if "en_route_at" not in cols:
+                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN en_route_at DATETIME"))
+                if "delivered_at" not in cols:
+                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN delivered_at DATETIME"))
+                db.session.commit()
+        except Exception:
+            db.session.rollback()
         if not inspector.has_table("orders"):
             return
     cols = {c["name"] for c in inspector.get_columns("orders")}
