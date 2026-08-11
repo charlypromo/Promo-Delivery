@@ -301,7 +301,16 @@ def driver_stats():
     return jsonify(result)
 
 def ensure_order_columns():
-    cols={c["name"] for c in inspect(db.engine).get_columns("orders")}
+    inspector = inspect(db.engine)
+    # A fresh database may not have the orders table yet.
+    # create_all() normally creates it first, but this guard makes startup safe
+    # during fresh Render deploys and database resets.
+    if not inspector.has_table("orders"):
+        db.create_all()
+        inspector = inspect(db.engine)
+        if not inspector.has_table("orders"):
+            return
+    cols={c["name"] for c in inspector.get_columns("orders")}
     statements=[]
     if "transaction_id" not in cols:
         statements.append("ALTER TABLE orders ADD COLUMN transaction_id VARCHAR(120) DEFAULT ''")
