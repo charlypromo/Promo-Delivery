@@ -70,7 +70,30 @@
     <label>Adrès<textarea id="address"></textarea></label>
     <div class="row2">
       <label>Referans kote<input id="landmark"></label>
-      <label>Peman<select id="payment"><option>Cash</option><option>MonCash</option><option>NatCash</option></select></label>
+      <div class="payment-section">
+  <label>Peman</label>
+
+  <div class="payment-buttons">
+    <button type="button" class="pay-btn active"
+            onclick="selectPayment('Cash', this)">
+      💵 CASH
+    </button>
+
+    <button type="button" class="pay-btn"
+            onclick="selectPayment('MonCash', this)">
+      📱 MONCASH
+    </button>
+
+    <button type="button" class="pay-btn"
+            onclick="selectPayment('NatCash', this)">
+      📲 NATCASH
+    </button>
+  </div>
+
+  <input type="hidden" id="payment" value="Cash">
+
+  <div id="paymentInfo"></div>
+</div>
     </div>
     <label>Nòt<textarea id="note"></textarea></label>
     <button class="primary" onclick="submitOrder()">VALIDÉ KÒMAND LAN</button>
