@@ -1,35 +1,54 @@
-
 <!doctype html>
 <html lang="ht">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promo Delivery</title>
+<title>Promo Delivery V10</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body data-page="{{ page }}">
+<body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
 <header class="top">
   <div class="brand">
     <div class="logoBox">P</div>
     <div><b>PROMO DELIVERY</b><small>Ou mande, nou livre 🛵</small></div>
   </div>
   <nav>
-    <a href="/" class="{{ 'active' if page=='client' else '' }}">Client</a>
-    {% if page in ['admin','driver'] %}<a href="/logout">Déconnexion</a>{% else %}<a href="/login" class="{{ 'active' if page=='login' else '' }}">Connexion</a>{% endif %}
+    <a href="/" class="{{ 'active' if page=='client' else '' }}">Akèy</a>
+    {% if member %}<span class="memberHello">👤 {{ member.full_name }}</span><a href="#myOrders">Kòmand mwen yo</a><a href="/logout">Dekonekte</a>
+    {% elif page in ['admin','driver'] %}<a href="/logout">Dekonekte</a>
+    {% else %}<a href="/register" class="{{ 'active' if page=='register' else '' }}">Enskri</a><a href="/login" class="{{ 'active' if page=='login' else '' }}">Konekte</a>{% endif %}
   </nav>
 </header>
 
+{% if page == 'register' %}
+<main class="wrap loginWrap">
+  <section class="hero"><h1>Vin Manm Promo Delivery 🎉</h1><p>Kreye kont ou pou pase kòmand epi swiv tout livrezon ou yo.</p></section>
+  <section class="card loginCard">
+    {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+    <form method="post" action="/register">
+      <label>Non konplè<input name="full_name" autocomplete="name" required></label>
+      <label>Telefòn<input name="phone" autocomplete="tel" placeholder="+509 ..." required></label>
+      <label>Username<input name="username" autocomplete="username" minlength="3" required></label>
+      <label>Modpas<input name="password" type="password" autocomplete="new-password" minlength="6" required></label>
+      <label>Konfime modpas<input name="confirm_password" type="password" autocomplete="new-password" minlength="6" required></label>
+      <button class="primary" type="submit">KREYE KONT MWEN</button>
+      <p class="muted center">Ou deja manm? <a href="/login">Konekte isit la</a>.</p>
+    </form>
+  </section>
+</main>
+{% endif %}
 
 {% if page == 'login' %}
 <main class="wrap loginWrap">
-  <section class="hero"><h1>Connexion sécurisée 🔐</h1><p>Admin ak livreur sèlman.</p></section>
+  <section class="hero"><h1>Konekte 🔐</h1><p>Manm Promo Delivery, Admin ak livreur.</p></section>
   <section class="card loginCard">
     {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
     <form method="post" action="/login">
-      <label>Kalite aksè<select name="role" id="loginRole" onchange="toggleLoginRole()"><option value="admin">Admin</option><option value="driver">Livreur</option></select></label>
-      <label>Non itilizatè<input name="username" id="loginUser" autocomplete="username" placeholder="admin"></label>
+      <label>Kalite aksè<select name="role" id="loginRole" onchange="toggleLoginRole()"><option value="customer">Manm / Kliyan</option><option value="admin">Admin</option><option value="driver">Livreur</option></select></label>
+      <label>Username / Non itilizatè<input name="username" id="loginUser" autocomplete="username" placeholder="username" required></label>
       <label>Modpas<input name="password" type="password" autocomplete="current-password" required></label>
       <button class="primary" type="submit">KONEKTE</button>
+      <p class="muted center">Ou poko manm? <a href="/register">Enskri gratis</a>.</p>
     </form>
   </section>
 </main>
@@ -37,26 +56,30 @@
 
 {% if page == 'client' %}
 <main class="wrap">
-  <section class="hero"><h1>Sa w bezwen an, nou pote l ba ou.</h1><p>Pain, sucre, dlo, manje, gaz propane, taxi, ti komisyon ak plis ankò.</p></section>
+  <section class="hero"><h1>Sa w bezwen an, nou pote l ba ou.</h1><p>Pain, sucre, dlo, manje, gaz propane, taxi, ti komisyon ak plis ankò.</p>{% if member %}<div class="memberBadge">✅ Manm Promo Delivery — {{ member.username }}</div>{% else %}<div class="heroActions"><a class="cta" href="/register">Vin manm</a><a class="cta secondary" href="/login">Konekte</a></div>{% endif %}</section>
 
-  <section class="card">
-    <h2>🔎 Swiv yon kòmand</h2>
-    <div class="row"><input id="trackId" placeholder="Eg. PD-123456"><button onclick="trackOrder()">Chèche</button></div>
-    <div id="trackResult"></div>
+  <section class="card adSection">
+    <div class="sectionHead"><h2>📣 Piblisite & Anons</h2><small>Paryaj, biznis, bal, spektak ak evènman nan vil la.</small></div>
+    <div id="ads" class="adsGrid"></div>
   </section>
+
+  {% if member %}
+  <section class="card" id="myOrders">
+    <div class="sectionHead"><h2>📦 Kòmand mwen yo</h2><button onclick="loadMyOrders()">Rafrechi</button></div>
+    <div id="myOrdersList" class="myOrders"></div>
+  </section>
+  {% else %}
+  <section class="card memberGate"><h2>🔐 Fòk ou manm pou kòmande</h2><p>Kreye username ak modpas ou. Apre sa ou ka pase kòmand epi swiv colis ou dirèkteman nan kont ou.</p><div class="heroActions"><a class="cta" href="/register">Kreye kont</a><a class="cta secondary" href="/login">Mwen deja manm</a></div></section>
+  {% endif %}
 
   <h2>Kategori</h2><div id="cats" class="cats"></div>
   <h2>Pwodwi & sèvis</h2><div id="products" class="products"></div>
 
+  {% if member %}
   <section class="card">
     <h2>🛒 Panier</h2><div id="cart"></div>
     <div class="row2">
-      <label>Zòn<select id="zone" onchange="syncFee()">
-        <option value="250">Dexia / Sant vil — 250</option>
-        <option value="350">Nan zòn Okay — 350</option>
-        <option value="500">Andeyò sant vil — 500</option>
-        <option value="0">Pickup — 0</option>
-      </select></label>
+      <label>Zòn<select id="zone" onchange="syncFee()"><option value="250">Dexia / Sant vil — 250</option><option value="350">Nan zòn Okay — 350</option><option value="500">Andeyò sant vil — 500</option><option value="0">Pickup — 0</option></select></label>
       <label>Frè livraison<input id="fee" type="number" value="250" oninput="renderCart()"></label>
     </div>
     <div class="total"><span>Total</span><strong id="total">0 Gdes</strong></div>
@@ -64,85 +87,60 @@
 
   <section class="card">
     <h2>📍 Enfòmasyon livraison</h2>
-    <div class="row2">
-      <label>Non<input id="name"></label><label>Telefòn<input id="phone"></label>
-    </div>
-    <label>Adrès<textarea id="address"></textarea></label>
-    <div class="row2">
-      <label>Referans kote<input id="landmark"></label>
-      <div></div>
-    </div>
+    <div class="memberIdentity"><div><small>Manm</small><b>{{ member.full_name }}</b></div><div><small>Telefòn</small><b>{{ member.phone }}</b></div></div>
+    <label>Adrès<textarea id="address" placeholder="Ekri adrès livrezon an"></textarea></label>
+    <label>Referans kote<input id="landmark" placeholder="Eg. bò legliz la"></label>
 
     <div class="payment-section">
       <h2>💳 Peman</h2>
       <div class="payment-buttons">
-        <button type="button" class="pay-btn cash active" onclick="selectPayment('Cash', this)">
-          <span class="cash-icon">💵</span><strong>CASH</strong>
-        </button>
-        <button type="button" class="pay-btn moncash" onclick="selectPayment('MonCash', this)">
-          <img src="{{ url_for('static', filename='moncash.png') }}" alt="MonCash"><strong>MONCASH</strong>
-        </button>
-        <button type="button" class="pay-btn natcash" onclick="selectPayment('NatCash', this)">
-          <img src="{{ url_for('static', filename='natcash.jpeg') }}" alt="NatCash"><strong>NATCASH</strong>
-        </button>
+        <button type="button" class="pay-btn cash active" onclick="selectPayment('Cash', this)"><span class="cash-icon">💵</span><strong>CASH</strong></button>
+        <button type="button" class="pay-btn moncash" onclick="selectPayment('MonCash', this)"><img src="{{ url_for('static', filename='moncash.png') }}" alt="MonCash"><strong>MONCASH</strong></button>
+        <button type="button" class="pay-btn natcash" onclick="selectPayment('NatCash', this)"><img src="{{ url_for('static', filename='natcash.jpeg') }}" alt="NatCash"><strong>NATCASH</strong></button>
       </div>
       <input type="hidden" id="payment" value="Cash">
       <div id="paymentInfo" class="payment-info">💵 Peman an ap fèt Cash.</div>
-      <div id="transactionBox" class="transaction-box" style="display:none">
-        <label>Nimewo tranzaksyon
-          <input id="transactionId" placeholder="Eg: 123456789">
-        </label>
-        <small>Obligatwa pou MonCash oswa NatCash apre ou fin voye peman an.</small>
-      </div>
+      <div id="transactionBox" class="transaction-box" style="display:none"><label>Nimewo tranzaksyon<input id="transactionId" placeholder="Eg: 123456789"></label><small>Obligatwa pou MonCash oswa NatCash apre ou fin voye peman an.</small></div>
     </div>
 
     <label>Nòt<textarea id="note"></textarea></label>
     <button class="primary" onclick="submitOrder()">VALIDÉ KÒMAND LAN</button>
     <div id="success"></div>
   </section>
+  {% endif %}
 </main>
 {% endif %}
 
 {% if page == 'admin' %}
 <main class="wrap">
-  <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur ak rapò. 🔐 {{ auth_name }}</p></section>
-  <div class="stats">
-    <div><small>Nouvo</small><strong id="sNew">0</strong></div>
-    <div><small>Preparasyon</small><strong id="sPrep">0</strong></div>
-    <div><small>Sou wout</small><strong id="sRoute">0</strong></div>
-    <div><small>Livré</small><strong id="sDone">0</strong></div>
-    <div><small>Vant livré</small><strong id="sRevenue">0</strong></div>
-  </div>
+  <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur, manm, piblisite ak rapò. 🔐 {{ auth_name }}</p></section>
+  <div class="stats"><div><small>Nouvo</small><strong id="sNew">0</strong></div><div><small>Preparasyon</small><strong id="sPrep">0</strong></div><div><small>Sou wout</small><strong id="sRoute">0</strong></div><div><small>Livré</small><strong id="sDone">0</strong></div><div><small>Vant livré</small><strong id="sRevenue">0</strong></div><div><small>Manm</small><strong id="sMembers">0</strong></div></div>
+
+  <section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
 
   <section class="card">
-    <h2>🚚 Estatistik livreur yo</h2>
-    <div id="driverStats"></div>
+    <h2>📣 Jesyon Piblisite & Anons</h2><p class="muted">Mete Paryaj Lakay, La Grâce Solutions, gwo bal, spektak oswa lòt anons sou paj kliyan an.</p>
+    <div class="row2"><label>Tit<input id="adTitle" placeholder="Eg. Gwo Bal Samdi"></label><label>Lyen / kontak<input id="adLink" placeholder="https://... oswa tel:"></label></div>
+    <label>Deskripsyon<textarea id="adDescription" placeholder="Ti mesaj piblisite a"></textarea></label>
+    <label>URL imaj / flyer<input id="adImage" placeholder="https://... (opsyonèl)"></label>
+    <div class="row2"><label>Kòmanse<input id="adStart" type="date"></label><label>Fini<input id="adEnd" type="date"></label></div>
+    <button onclick="addAd()">Ajoute anons</button>
+    <div id="adManager" class="adManager"></div>
   </section>
 
   <section class="card">
     <h2>🧾 Jesyon pwodwi & pri</h2><p class="muted">Ou ka ajoute nouvo pwodwi oswa modifye non ak pri pwodwi ki deja la.</p>
-    <div class="row2">
-      <label>Non<input id="pname"></label><label>Pri<input id="pprice" type="number"></label>
-    </div>
-    <div class="row2">
-      <label>Kategori<select id="pcat"><option value="pain">Pain</option><option value="sucre">Sucre</option><option value="eau">Dlo</option><option value="food">Manje</option><option value="gas">Gaz</option><option value="taxi">Taxi</option><option value="other">Autres</option></select></label>
-      <label>Icon<input id="picon" placeholder="🥤"></label>
-    </div>
-    <button onclick="addProduct()">Ajoute</button>
-    <div id="productManager"></div>
+    <div class="row2"><label>Non<input id="pname"></label><label>Pri<input id="pprice" type="number"></label></div>
+    <div class="row2"><label>Kategori<select id="pcat"><option value="pain">Pain</option><option value="sucre">Sucre</option><option value="eau">Dlo</option><option value="food">Manje</option><option value="gas">Gaz</option><option value="taxi">Taxi</option><option value="other">Autres</option></select></label><label>Icon<input id="picon" placeholder="🥤"></label></div>
+    <button onclick="addProduct()">Ajoute</button><div id="productManager"></div>
   </section>
 
-  <section class="card"><h2>📦 Kòmand yo</h2><div class="tablewrap"><table><thead><tr>
-    <th>#</th><th>Kliyan</th><th>Atik</th><th>Total</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th>
-  </tr></thead><tbody id="orders"></tbody></table></div></section>
+  <section class="card"><h2>📦 Kòmand yo</h2><div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
 </main>
 {% endif %}
 
 {% if page == 'driver' %}
-<main class="wrap">
-  <section class="hero"><h1>Espace Livreur 🛵</h1><p>Byenvini <b>{{ auth_name }}</b>. Men livrezon ki asiyen avè w.</p></section>
-  <div id="driverOrders" class="driverGrid"></div>
-</main>
+<main class="wrap"><section class="hero"><h1>Espace Livreur 🛵</h1><p>Byenvini <b>{{ auth_name }}</b>. Men livrezon ki asiyen avè w.</p></section><div id="driverOrders" class="driverGrid"></div></main>
 {% endif %}
 
 <div id="toast" class="toast"></div>
