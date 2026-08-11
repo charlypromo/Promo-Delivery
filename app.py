@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 .env
-instance/
-*.db
+promo_delivery.db
