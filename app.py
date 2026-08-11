@@ -13,9 +13,9 @@ app.config["SESSION_COOKIE_SECURE"] = os.getenv("COOKIE_SECURE", "1") == "1"
 ADMIN_USER = os.getenv("ADMIN_USER", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "PromoAdmin2026!")
 DRIVER_PASSWORDS = {
-    "Junior": os.getenv("DRIVER_JUNIOR_PASSWORD", "Junior2026!"),
-    "Jonathan": os.getenv("DRIVER_JONATHAN_PASSWORD", "Jonathan2026!"),
-    "Edwin": os.getenv("DRIVER_EDWIN_PASSWORD", "Edwin2026!"),
+    "Jeff": os.getenv("DRIVER_JEFF_PASSWORD", ""),
+    "Duckens": os.getenv("DRIVER_DUCKENS_PASSWORD", ""),
+    "Jn Fritz": os.getenv("DRIVER_JN_FRITZ_PASSWORD", ""),
 }
 
 def admin_required(fn):
