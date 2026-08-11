@@ -60,7 +60,10 @@ async function trackOrder(){
 
 async function initAdmin(){await reloadAdmin()}
 async function reloadAdmin(){
-  products=await api('/api/products');orders=await api('/api/orders');const ds=await api('/api/driver-stats');
+  products=await api('/api/products');
+  orders=await api('/api/orders');
+  const st=await api('/api/stats');
+  const ds=await api('/api/driver-stats');
   document.getElementById('sNew').textContent=st.Nouveau?.count||0;document.getElementById('sPrep').textContent=st['Préparation']?.count||0;
   document.getElementById('sRoute').textContent=st['En route']?.count||0;document.getElementById('sDone').textContent=st['Livré']?.count||0;
   document.getElementById('sRevenue').textContent=fmt(st.revenue_delivered||0);renderAdminProducts();renderOrders();
@@ -81,7 +84,7 @@ function renderDriverStats(ds){
   `).join('');
 }
 
- function renderAdminProducts()
+ function renderAdminProducts(){
   document.getElementById('productManager').innerHTML=products.map(p=>`
     <div class="productEditRow">
       <div class="editIcon">${p.icon}</div>
