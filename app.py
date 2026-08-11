@@ -270,6 +270,29 @@ def stats():
     delivered=db.session.query(db.func.coalesce(db.func.sum(Order.total),0)).filter(Order.status=="Livré").scalar()
     result["revenue_delivered"]=float(delivered or 0)
     return jsonify(result)
+@app.get("/api/driver-stats")
+@admin_required
+def driver_stats():
+    drivers = ["Jeff", "Duckens", "Jn Fritz"]
+    result = []
+
+    for driver in drivers:
+        orders = Order.query.filter_by(
+            driver=driver,
+            status="Livré"
+        ).all()
+
+        count = len(orders)
+        total = sum(float(o.total or 0) for o in orders)
+
+        result.append({
+            "driver": driver,
+            "count": count,
+            "total": total
+        })
+
+    return jsonify(result)
+
 
 with app.app_context():
     db.create_all()
