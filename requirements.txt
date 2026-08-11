@@ -1,6 +1,7 @@
-Flask>=3.0,<4
-Flask-SQLAlchemy>=3.1,<4
-SQLAlchemy>=2.0,<3
-gunicorn>=22,<24
-psycopg2-binary>=2.9,<3
-Werkzeug>=3.0,<4
+PROMO DELIVERY V15.1 — ADS PHOTO UPLOAD
+- Admin ka upload flyer dirèkteman nan Jesyon Piblisite & Anons
+- Fòma: PNG, JPG, JPEG
+- Maksimòm: 3 MB
+- Foto a estoke nan bazdone a kòm image data, kidonk li pa depann de filesystem Render
+- URL imaj la rete disponib kòm opsyon
+- Tout fonksyon V15 yo konsève
