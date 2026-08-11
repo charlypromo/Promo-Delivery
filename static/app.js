@@ -141,5 +141,5 @@ Estati: ${o.status}`;
 function toggleLoginRole(){
   const role=document.getElementById('loginRole'), user=document.getElementById('loginUser');
   if(!role||!user)return;
-  if(role.value==='driver'){user.placeholder='Junior / Jonathan / Edwin';}else{user.placeholder='admin';}
+  if(role.value==='driver'){user.placeholder='Jeff / Duckens / Jn Fritz';}else{user.placeholder='admin';}
 }
