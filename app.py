@@ -105,6 +105,7 @@ class Order(db.Model):
     zone = db.Column(db.String(255), default="")
     payment = db.Column(db.String(50), default="Cash")
     transaction_id = db.Column(db.String(120), default="")
+    paid_amount = db.Column(db.Float, default=0)
     payment_status = db.Column(db.String(50), default="Cash")
     order_type = db.Column(db.String(50), default="Livraison")
     note = db.Column(db.Text, default="")
@@ -122,6 +123,7 @@ class Order(db.Model):
             "customer": self.customer, "phone": self.phone,
             "address": self.address, "landmark": self.landmark or "", "zone": self.zone or "",
             "payment": self.payment or "Cash", "transaction_id": self.transaction_id or "",
+            "paid_amount": float(self.paid_amount or 0),
             "payment_status": self.payment_status or ("Cash" if (self.payment or "Cash") == "Cash" else "Ap tann verifikasyon"),
             "order_type": self.order_type or "Livraison", "note": self.note or "",
             "items": json.loads(self.items_json or "[]"), "subtotal": self.subtotal or 0,
@@ -266,7 +268,7 @@ def driver():
 
 @app.route("/health")
 def health():
-    return {"ok": True, "service": "Promo Delivery V11"}
+    return {"ok": True, "service": "Promo Delivery V12"}
 
 
 @app.get("/api/me")
@@ -421,12 +423,20 @@ def create_order():
     code = "PD-" + now.strftime("%y%m%d%H%M%S%f")[-12:]
     payment = str(d.get("payment", "Cash")).strip() or "Cash"
     transaction_id = str(d.get("transaction_id", "")).strip()
+    try:
+        paid_amount = float(d.get("paid_amount", 0) or 0)
+    except (TypeError, ValueError):
+        paid_amount = 0
     if payment in ("MonCash", "NatCash") and not transaction_id:
         return jsonify({"error": "transaction_required"}), 400
+    if payment in ("MonCash", "NatCash") and paid_amount <= 0:
+        return jsonify({"error": "paid_amount_required"}), 400
+    if payment == "Cash":
+        paid_amount = 0
     payment_status = "Cash" if payment == "Cash" else "Ap tann verifikasyon"
     o = Order(code=code, customer_id=user.id, customer=user.full_name, phone=user.phone, address=address,
               landmark=str(d.get("landmark", "")).strip(), zone=str(d.get("zone", "")), payment=payment,
-              transaction_id=transaction_id, payment_status=payment_status,
+              transaction_id=transaction_id, paid_amount=paid_amount, payment_status=payment_status,
               order_type=str(d.get("order_type", "Livraison")), note=str(d.get("note", "")).strip(),
               items_json=json.dumps(items, ensure_ascii=False), subtotal=subtotal, delivery_fee=fee,
               total=subtotal + fee, status="Nouveau", driver="", created_at=now)
@@ -475,6 +485,27 @@ def remove_order(oid):
         return jsonify({"error": "not_found"}), 404
     db.session.delete(o); db.session.commit()
     return jsonify({"ok": True})
+
+
+@app.get("/api/members")
+@admin_required
+def members():
+    users = User.query.order_by(User.id.desc()).all()
+    result = []
+    for user in users:
+        user_orders = Order.query.filter_by(customer_id=user.id).all()
+        delivered = [o for o in user_orders if o.status == "Livré"]
+        result.append({
+            "id": user.id,
+            "full_name": user.full_name,
+            "username": user.username,
+            "phone": user.phone,
+            "created_at": user.created_at.isoformat(timespec="seconds") if user.created_at else "",
+            "orders_count": len(user_orders),
+            "delivered_count": len(delivered),
+            "orders_total": float(sum(float(o.total or 0) for o in user_orders)),
+        })
+    return jsonify(result)
 
 
 @app.get("/api/stats")
@@ -536,6 +567,8 @@ def ensure_order_columns():
         statements.append("ALTER TABLE orders ADD COLUMN transaction_id VARCHAR(120) DEFAULT ''")
     if "payment_status" not in cols:
         statements.append("ALTER TABLE orders ADD COLUMN payment_status VARCHAR(50) DEFAULT 'Cash'")
+    if "paid_amount" not in cols:
+        statements.append("ALTER TABLE orders ADD COLUMN paid_amount FLOAT DEFAULT 0")
     if "customer_id" not in cols:
         statements.append("ALTER TABLE orders ADD COLUMN customer_id INTEGER")
     for statement in statements:

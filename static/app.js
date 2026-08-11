@@ -1,7 +1,7 @@
 const PAGE=document.body.dataset.page;
 const IS_MEMBER=document.body.dataset.member==='1';
 const CATS=[['all','✨','Tout'],['pain','🥖','Pain'],['sucre','🍚','Sucre'],['eau','💧','Dlo'],['food','🍛','Manje'],['gas','🔥','Gaz'],['taxi','🚕','Taxi'],['other','📦','Autres']];
-let products=[],cart=[],activeCat='all',orders=[],ads=[];
+let products=[],cart=[],activeCat='all',orders=[],ads=[],members=[];
 
 const fmt=n=>new Intl.NumberFormat('fr-FR').format(Number(n||0))+' Gdes';
 function toast(m){const t=document.getElementById('toast');if(!t)return;t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
@@ -14,7 +14,7 @@ function selectPayment(method,btn){
   const payment=document.getElementById('payment'); if(!payment)return;
   payment.value=method;document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
   const info=document.getElementById('paymentInfo'),box=document.getElementById('transactionBox');
-  if(method==='Cash'){info.innerHTML='💵 Peman an ap fèt Cash.';box.style.display='none';document.getElementById('transactionId').value='';}
+  if(method==='Cash'){info.innerHTML='💵 Peman an ap fèt Cash.';box.style.display='none';document.getElementById('transactionId').value='';const pa=document.getElementById('paidAmount');if(pa)pa.value='';}
   else if(method==='MonCash'){info.innerHTML='📱 <b>MonCash:</b> +(509) 3414-6480 — Voye peman an sou MonCash.';box.style.display='block';}
   else{info.innerHTML='📱 <b>NatCash:</b> +(509) 3390-3940 — Voye peman an sou NatCash.';box.style.display='block';}
 }
@@ -40,12 +40,12 @@ function syncFee(){document.getElementById('fee').value=document.getElementById(
 function renderCart(){const el=document.getElementById('cart');if(!el)return;el.innerHTML=cart.length?cart.map(i=>`<div class="cartrow"><span>${i.icon} <b>${esc(i.name)}</b><br><small>${i.price?fmt(i.price):'Pri pou konfime'}</small></span><span><button class="qbtn" onclick="qty(${i.id},-1)">−</button> <b>${i.qty}</b> <button class="qbtn" onclick="qty(${i.id},1)">+</button></span></div>`).join(''):'<div class="muted">Panier la vid.</div>';const subtotal=cart.reduce((s,i)=>s+Number(i.price)*i.qty,0),fee=Number(document.getElementById('fee')?.value||0);document.getElementById('total').textContent=fmt(subtotal+fee)}
 async function submitOrder(){
   if(!IS_MEMBER)return location.href='/login';
-  const payment=document.getElementById('payment').value,transaction_id=document.getElementById('transactionId').value.trim();
+  const payment=document.getElementById('payment').value,transaction_id=document.getElementById('transactionId').value.trim(),paid_amount=Number((document.getElementById('paidAmount')||{}).value||0);
   if(!cart.length)return alert('Ajoute omwen yon pwodwi nan panier la.');
   if(!document.getElementById('address').value.trim())return alert('Ranpli adrès livrezon an.');
-  if((payment==='MonCash'||payment==='NatCash')&&!transaction_id)return alert('Antre nimewo tranzaksyon an.');
-  const payload={address:document.getElementById('address').value.trim(),landmark:document.getElementById('landmark').value.trim(),zone:document.getElementById('zone').selectedOptions[0].text,delivery_fee:Number(document.getElementById('fee').value||0),payment,transaction_id,note:document.getElementById('note').value.trim(),order_type:'Livraison',items:cart.map(i=>({name:i.name,qty:i.qty,price:i.price,icon:i.icon}))};
-  try{const r=await api('/api/orders',{method:'POST',body:JSON.stringify(payload)});document.getElementById('success').innerHTML=`<div class="success">✅ Kòmand lan antre! Nimewo ou se <b>${r.code}</b>. Total: <b>${fmt(r.total)}</b>. Ou ka swiv li nan “Kòmand mwen yo”.</div>`;cart=[];renderCart();document.getElementById('transactionId').value='';await loadMyOrders();toast('Kòmand valide')}catch(e){alert(e.error==='member_login_required'?'Konekte kòm manm anvan.':'Kòmand lan pa pase. Verifye enfòmasyon yo.')}
+  if((payment==='MonCash'||payment==='NatCash')&&!transaction_id)return alert('Antre nimewo tranzaksyon an.');if((payment==='MonCash'||payment==='NatCash')&&paid_amount<=0)return alert('Antre montan ou peye a.');
+  const payload={address:document.getElementById('address').value.trim(),landmark:document.getElementById('landmark').value.trim(),zone:document.getElementById('zone').selectedOptions[0].text,delivery_fee:Number(document.getElementById('fee').value||0),payment,transaction_id,paid_amount,note:document.getElementById('note').value.trim(),order_type:'Livraison',items:cart.map(i=>({name:i.name,qty:i.qty,price:i.price,icon:i.icon}))};
+  try{const r=await api('/api/orders',{method:'POST',body:JSON.stringify(payload)});document.getElementById('success').innerHTML=`<div class="success">✅ Kòmand lan antre! Nimewo ou se <b>${r.code}</b>. Total: <b>${fmt(r.total)}</b>. Ou ka swiv li nan “Kòmand mwen yo”.</div>`;cart=[];renderCart();document.getElementById('transactionId').value='';const pa=document.getElementById('paidAmount');if(pa)pa.value='';await loadMyOrders();toast('Kòmand valide')}catch(e){alert(e.error==='member_login_required'?'Konekte kòm manm anvan.':'Kòmand lan pa pase. Verifye enfòmasyon yo.')}
 }
 async function loadMyOrders(){
   const el=document.getElementById('myOrdersList');if(!el)return;
@@ -55,11 +55,17 @@ function stageReached(current,stage){const a=['Nouveau','Préparation','En route
 
 async function initAdmin(){await reloadAdmin()}
 async function reloadAdmin(){
-  products=await api('/api/products');orders=await api('/api/orders');const st=await api('/api/stats');const ds=await api('/api/driver-stats');ads=await api('/api/admin/ads');
+  products=await api('/api/products');orders=await api('/api/orders');members=await api('/api/members');const st=await api('/api/stats');const ds=await api('/api/driver-stats');ads=await api('/api/admin/ads');
   document.getElementById('sNew').textContent=st.Nouveau?.count||0;document.getElementById('sPrep').textContent=st['Préparation']?.count||0;document.getElementById('sRoute').textContent=st['En route']?.count||0;document.getElementById('sDone').textContent=st['Livré']?.count||0;document.getElementById('sRevenue').textContent=fmt(st.revenue_delivered||0);document.getElementById('sMembers').textContent=st.members||0;
   const mt=document.getElementById('sMembersToday'),mw=document.getElementById('sMembersWeek'),mm=document.getElementById('sMembersMonth'),mt2=document.getElementById('sMembersTotal2');
   if(mt)mt.textContent=st.members_today||0;if(mw)mw.textContent=st.members_week||0;if(mm)mm.textContent=st.members_month||0;if(mt2)mt2.textContent=st.members||0;
-  renderDriverStats(ds);renderAdsAdmin();renderAdminProducts();renderOrders();
+  renderMembers();renderDriverStats(ds);renderAdsAdmin();renderAdminProducts();renderOrders();
+}
+function renderMembers(){
+  const box=document.getElementById('membersList');if(!box)return;
+  const q=(document.getElementById('memberSearch')?.value||'').trim().toLowerCase();
+  const list=members.filter(m=>!q||[m.full_name,m.username,m.phone].some(v=>String(v||'').toLowerCase().includes(q)));
+  box.innerHTML=list.length?list.map(m=>`<tr><td><b>${esc(m.full_name)}</b><br><small>#${m.id}</small></td><td>@${esc(m.username)}</td><td>${esc(m.phone)}</td><td><small>${esc((m.created_at||'').replace('T',' '))}</small></td><td><b>${m.orders_count}</b></td><td>${m.delivered_count}</td><td>${fmt(m.orders_total)}</td></tr>`).join(''):'<tr><td colspan="7">Pa jwenn manm.</td></tr>';
 }
 function renderDriverStats(ds){const box=document.getElementById('driverStats');if(!box)return;box.innerHTML=ds.map(d=>`<div class="driverStatCard"><strong>${esc(d.driver)}</strong><span>${d.count} livrezon</span><b>${fmt(d.total)}</b></div>`).join('')}
 function renderAdminProducts(){const box=document.getElementById('productManager');if(!box)return;box.innerHTML=products.map(p=>`<div class="productEditRow"><div class="editIcon">${p.icon}</div><div class="editFields"><input id="pn-${p.id}" value="${esc(p.name)}" aria-label="Non pwodwi"><input id="pp-${p.id}" type="number" min="0" value="${Number(p.price||0)}" aria-label="Pri"></div><div class="editActions"><button class="saveBtn" onclick="saveProduct(${p.id})">💾 Sove</button><button class="removeBtn" onclick="delProduct(${p.id})">Retire</button></div></div>`).join('')}
@@ -72,7 +78,15 @@ async function addAd(){const title=document.getElementById('adTitle').value.trim
 async function toggleAd(id,active){await api('/api/admin/ads/'+id,{method:'PATCH',body:JSON.stringify({active})});await reloadAdmin()}
 async function removeAd(id){if(confirm('Efase anons sa?')){await api('/api/admin/ads/'+id,{method:'DELETE'});await reloadAdmin()}}
 
-function renderOrders(){const box=document.getElementById('orders');if(!box)return;box.innerHTML=orders.length?orders.map(o=>`<tr><td><b>${o.code}</b><br><small>${o.created_at}</small></td><td><b>${esc(o.customer)}</b><br>${esc(o.phone)}${o.customer_id?'<br><small>👤 Manm #'+o.customer_id+'</small>':''}</td><td>${itemsText(o)}${o.note?'<br><small>📝 '+esc(o.note)+'</small>':''}</td><td><b>${fmt(o.total)}</b><br><small>Fee ${fmt(o.delivery_fee)}</small><br><small><b>${o.payment}</b>${o.transaction_id?'<br>Tx: '+esc(o.transaction_id):''}${o.payment!=='Cash'?'<br>'+o.payment_status:''}</small></td><td>${esc(o.address)}${o.landmark?'<br><small>📌 '+esc(o.landmark)+'</small>':''}</td><td><span class="badge ${statusClass(o.status)}">${o.status}</span><br><select onchange="patchOrder(${o.id},'status',this.value)">${['Nouveau','Préparation','En route','Livré','Annulé'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td><td><select onchange="patchOrder(${o.id},'driver',this.value)"><option value="">Non assigné</option>${['Jeff','Duckens','Jn Fritz'].map(d=>`<option ${d===o.driver?'selected':''}>${d}</option>`).join('')}</select></td><td>${o.payment!=='Cash'?`<button class="saveBtn" onclick="paymentStatus(${o.id},'Konfime')">Konfime</button> <button class="removeBtn" onclick="paymentStatus(${o.id},'Refize')">Refize</button><br><br>`:''}<button onclick="copyOrderSummaryById(${o.id})">📋 Mesaj</button> <button onclick="deleteOrder(${o.id})">Efase</button></td></tr>`).join(''):'<tr><td colspan="8">Pa gen kòmand.</td></tr>'}
+function paymentAmountInfo(o){
+  if(o.payment==='Cash')return '<span class="cashPayBadge">💵 Cash</span>';
+  const paid=Number(o.paid_amount||0),total=Number(o.total||0),diff=paid-total;
+  let cls='payMatch',label='✅ Montan OK';
+  if(diff < -0.01){cls='payShort';label='⚠️ Manke '+fmt(Math.abs(diff));}
+  else if(diff > 0.01){cls='payOver';label='ℹ️ Depase '+fmt(diff);}
+  return `<div class="paymentAdminBox"><b>${esc(o.payment)}</b><span>Total: ${fmt(total)}</span><span class="paidLine">Peye: <strong>${fmt(paid)}</strong></span>${o.transaction_id?`<span>Tx: ${esc(o.transaction_id)}</span>`:''}<span class="${cls}">${label}</span><span>${esc(o.payment_status||'')}</span></div>`;
+}
+function renderOrders(){const box=document.getElementById('orders');if(!box)return;box.innerHTML=orders.length?orders.map(o=>`<tr><td><b>${o.code}</b><br><small>${o.created_at}</small></td><td><b>${esc(o.customer)}</b><br>${esc(o.phone)}${o.customer_id?'<br><small>👤 Manm #'+o.customer_id+'</small>':''}</td><td>${itemsText(o)}${o.note?'<br><small>📝 '+esc(o.note)+'</small>':''}</td><td><b>${fmt(o.total)}</b><br><small>Fee ${fmt(o.delivery_fee)}</small>${paymentAmountInfo(o)}</td><td>${esc(o.address)}${o.landmark?'<br><small>📌 '+esc(o.landmark)+'</small>':''}</td><td><span class="badge ${statusClass(o.status)}">${o.status}</span><br><select onchange="patchOrder(${o.id},'status',this.value)">${['Nouveau','Préparation','En route','Livré','Annulé'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td><td><select onchange="patchOrder(${o.id},'driver',this.value)"><option value="">Non assigné</option>${['Jeff','Duckens','Jn Fritz'].map(d=>`<option ${d===o.driver?'selected':''}>${d}</option>`).join('')}</select></td><td>${o.payment!=='Cash'?`<button class="saveBtn" onclick="paymentStatus(${o.id},'Konfime')">Konfime</button> <button class="removeBtn" onclick="paymentStatus(${o.id},'Refize')">Refize</button><br><br>`:''}<button onclick="copyOrderSummaryById(${o.id})">📋 Mesaj</button> <button onclick="deleteOrder(${o.id})">Efase</button></td></tr>`).join(''):'<tr><td colspan="8">Pa gen kòmand.</td></tr>'}
 async function patchOrder(id,key,val){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({[key]:val})});await reloadAdmin();toast('Mete ajou')}
 async function paymentStatus(id,status){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({payment_status:status})});await reloadAdmin();toast('Peman '+status.toLowerCase())}
 async function deleteOrder(id){if(confirm('Efase kòmand sa?')){await api('/api/orders/'+id,{method:'DELETE'});await reloadAdmin()}}
@@ -109,5 +123,5 @@ async function driverStatus(id,status){
   await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({status})});
   await loadDriver();toast('Estati mete ajou: '+status)
 }
-function copyOrderSummaryById(id){const o=orders.find(x=>x.id===id);if(!o)return;const txt=`PROMO DELIVERY\nKòmand: ${o.code}\nKliyan: ${o.customer}\nTelefòn: ${o.phone}\nAdrès: ${o.address}${o.landmark?' - '+o.landmark:''}\nAtik: ${o.items.map(i=>i.name+' x'+i.qty).join(', ')}\nTotal: ${fmt(o.total)}\nPeman: ${o.payment}${o.transaction_id?' / Tx: '+o.transaction_id:''}${o.payment!=='Cash'?' / '+o.payment_status:''}\nEstati: ${o.status}`;if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Mesaj kòmand lan kopye'));else prompt('Kopye mesaj sa:',txt)}
+function copyOrderSummaryById(id){const o=orders.find(x=>x.id===id);if(!o)return;const txt=`PROMO DELIVERY\nKòmand: ${o.code}\nKliyan: ${o.customer}\nTelefòn: ${o.phone}\nAdrès: ${o.address}${o.landmark?' - '+o.landmark:''}\nAtik: ${o.items.map(i=>i.name+' x'+i.qty).join(', ')}\nTotal: ${fmt(o.total)}\nPeman: ${o.payment}${o.transaction_id?' / Tx: '+o.transaction_id:''}${o.payment!=='Cash'?' / Peye: '+fmt(o.paid_amount||0)+' / '+o.payment_status:''}\nEstati: ${o.status}`;if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Mesaj kòmand lan kopye'));else prompt('Kopye mesaj sa:',txt)}
 function toggleLoginRole(){const role=document.getElementById('loginRole'),user=document.getElementById('loginUser');if(!role||!user)return;if(role.value==='driver')user.placeholder='Jeff / Duckens / Jn Fritz';else if(role.value==='admin')user.placeholder='admin';else user.placeholder='username manm ou'}

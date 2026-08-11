@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promo Delivery V11</title>
+<title>Promo Delivery V12</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
@@ -100,7 +100,13 @@
       </div>
       <input type="hidden" id="payment" value="Cash">
       <div id="paymentInfo" class="payment-info">💵 Peman an ap fèt Cash.</div>
-      <div id="transactionBox" class="transaction-box" style="display:none"><label>Nimewo tranzaksyon<input id="transactionId" placeholder="Eg: 123456789"></label><small>Obligatwa pou MonCash oswa NatCash apre ou fin voye peman an.</small></div>
+      <div id="transactionBox" class="transaction-box" style="display:none">
+        <div class="row2 paymentProofRow">
+          <label>Nimewo tranzaksyon<input id="transactionId" placeholder="Eg: 123456789"></label>
+          <label>Montan ou peye (Gdes)<input id="paidAmount" type="number" min="1" step="0.01" placeholder="Eg: 975"></label>
+        </div>
+        <small>Obligatwa pou MonCash oswa NatCash. Admin ap verifye nimewo tranzaksyon an ak montan ou deklare ou peye a.</small>
+      </div>
     </div>
 
     <label>Nòt<textarea id="note"></textarea></label>
@@ -126,6 +132,11 @@
     </div>
   </section>
 
+  <section class="card memberManagerPanel">
+    <div class="sectionHead"><div><h2>👥 Jesyon Manm</h2><small>Gade manm yo ak kantite kòmand yo</small></div><input id="memberSearch" placeholder="🔎 Chèche non, username oswa telefòn" oninput="renderMembers()"></div>
+    <div class="tablewrap"><table class="memberTable"><thead><tr><th>Manm</th><th>Username</th><th>Telefòn</th><th>Enskri</th><th>Kòmand</th><th>Livré</th><th>Valè kòmand</th></tr></thead><tbody id="membersList"></tbody></table></div>
+  </section>
+
   <section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
 
   <section class="card">
@@ -145,7 +156,7 @@
     <button onclick="addProduct()">Ajoute</button><div id="productManager"></div>
   </section>
 
-  <section class="card"><h2>📦 Kòmand yo</h2><div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
+  <section class="card"><h2>📦 Kòmand yo</h2><div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total / Peman</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
 </main>
 {% endif %}
 
