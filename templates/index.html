@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promo Delivery V12</title>
+<title>Promo Delivery V15</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
@@ -14,7 +14,7 @@
   </div>
   <nav>
     <a href="/" class="{{ 'active' if page=='client' else '' }}">Akèy</a>
-    {% if member %}<span class="memberHello">👤 {{ member.full_name }}</span><a href="#myOrders">Kòmand mwen yo</a><a href="/logout">Dekonekte</a>
+    {% if member %}<span class="memberHello">👤 {{ member.full_name }}</span><a href="#myOrders">Kòmand mwen yo</a><a href="/profile" class="{{ 'active' if page=='profile' else '' }}">Kont mwen</a><a href="/logout">Dekonekte</a>
     {% elif page in ['admin','driver'] %}<a href="/logout">Dekonekte</a>
     {% else %}<a href="/register" class="{{ 'active' if page=='register' else '' }}">Enskri</a><a href="/login" class="{{ 'active' if page=='login' else '' }}">Konekte</a>{% endif %}
   </nav>
@@ -48,9 +48,57 @@
       <label>Username / Non itilizatè<input name="username" id="loginUser" autocomplete="username" placeholder="username" required></label>
       <label>Modpas<input name="password" type="password" autocomplete="current-password" required></label>
       <button class="primary" type="submit">KONEKTE</button>
-      <p class="muted center">Ou poko manm? <a href="/register">Enskri gratis</a>.</p>
+      <p class="muted center">Ou poko manm? <a href="/register">Enskri gratis</a> · <a href="/forgot-password">Mot de passe oublié?</a></p>
     </form>
   </section>
+</main>
+{% endif %}
+
+
+{% if page == 'forgot' %}
+<main class="wrap loginWrap">
+  <section class="hero"><h1>🔑 Mot de passe oublié</h1><p>Voye yon demann reset bay Admin Promo Delivery.</p></section>
+  <section class="card loginCard">
+    {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+    {% if success %}<div class="profileSuccess">✅ {{ success }}</div>{% endif %}
+    <form method="post" action="/forgot-password">
+      <label>Username<input name="username" autocomplete="username" required></label>
+      <label>Telefòn ki sou kont lan<input name="phone" required></label>
+      <button class="primary" type="submit">VOYE DEMANN RESET</button>
+      <p class="muted center"><a href="/login">← Retounen konekte</a></p>
+    </form>
+  </section>
+</main>
+{% endif %}
+
+{% if page == 'profile' %}
+<main class="wrap loginWrap profileWrap">
+  <section class="hero"><h1>👤 Kont mwen</h1><p>Jere enfòmasyon manm ou ak sekirite modpas ou.</p></section>
+  {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+  {% if success %}<div class="profileSuccess">✅ {{ success }}</div>{% endif %}
+  <div class="profileGrid">
+    <section class="card loginCard">
+      <h2>Enfòmasyon manm</h2>
+      <form method="post" action="/profile">
+        <input type="hidden" name="action" value="profile">
+        <label>Non konplè<input name="full_name" value="{{ member.full_name }}" required></label>
+        <label>Telefòn<input name="phone" value="{{ member.phone }}" required></label>
+        <label>Username<input value="{{ member.username }}" disabled></label>
+        <button class="primary" type="submit">SOVE PROFIL</button>
+      </form>
+    </section>
+    <section class="card loginCard">
+      <h2>🔐 Chanje modpas</h2>
+      <form method="post" action="/profile">
+        <input type="hidden" name="action" value="password">
+        <label>Modpas aktyèl<input name="current_password" type="password" autocomplete="current-password" required></label>
+        <label>Nouvo modpas<input name="new_password" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label>Konfime nouvo modpas<input name="confirm_password" type="password" minlength="8" autocomplete="new-password" required></label>
+        <button class="primary" type="submit">CHANJE MODPAS</button>
+      </form>
+      <p class="muted">Pou sekirite, modpas yo pa janm vizib nan Admin.</p>
+    </section>
+  </div>
 </main>
 {% endif %}
 
@@ -122,6 +170,42 @@
   <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur, manm, piblisite ak rapò. 🔐 {{ auth_name }}</p></section>
   <div class="stats"><div><small>Nouvo</small><strong id="sNew">0</strong></div><div><small>Preparasyon</small><strong id="sPrep">0</strong></div><div><small>Sou wout</small><strong id="sRoute">0</strong></div><div><small>Livré</small><strong id="sDone">0</strong></div><div><small>Vant livré</small><strong id="sRevenue">0</strong></div><div class="memberStatMain"><small>👥 Total Manm</small><strong id="sMembers">0</strong></div></div>
 
+  <section class="card opsDashboard">
+    <div class="sectionHead"><div><h2>📊 Rezime Operasyon Jodi a</h2><small>Kòmand, vant ak peman elektwonik konfime</small></div><button onclick="reloadAdmin()">↻ Rafrechi</button></div>
+    <div class="opsGrid">
+      <div><small>Kòmand jodi a</small><strong id="rOrdersToday">0</strong></div>
+      <div><small>Aktif jodi a</small><strong id="rActiveToday">0</strong></div>
+      <div><small>Livré jodi a</small><strong id="rDeliveredToday">0</strong></div>
+      <div><small>Vant livré jodi a</small><strong id="rRevenueToday">0 Gdes</strong></div>
+      <div class="moncashReport"><small>MonCash konfime</small><strong id="rMonCash">0 Gdes</strong><span id="rMonCashCount">0 tranzaksyon</span></div>
+      <div class="natcashReport"><small>NatCash konfime</small><strong id="rNatCash">0 Gdes</strong><span id="rNatCashCount">0 tranzaksyon</span></div>
+    </div>
+  </section>
+
+  
+  <section class="card financePanel">
+    <div class="sectionHead">
+      <div><h2>💰 Dashboard Finans</h2><small>Cash / MonCash / NatCash pa peryòd</small></div>
+      <select id="financePeriod" onchange="loadFinance()"><option value="today">Jodi a</option><option value="week">Semèn sa</option><option value="month">Mwa sa</option></select>
+    </div>
+    <div class="financeGrid">
+      <div class="cashFinance"><small>Cash resevwa</small><strong id="fCash">0 Gdes</strong><span id="fCashCount">0 tranzaksyon</span></div>
+      <div class="moncashFinance"><small>MonCash konfime</small><strong id="fMonCash">0 Gdes</strong><span id="fMonCashCount">0 tranzaksyon</span></div>
+      <div class="natcashFinance"><small>NatCash konfime</small><strong id="fNatCash">0 Gdes</strong><span id="fNatCashCount">0 tranzaksyon</span></div>
+      <div><small>Vant livré</small><strong id="fSales">0 Gdes</strong><span id="fDelivered">0 livré</span></div>
+    </div>
+  </section>
+
+<section class="card dataTools">
+    <div class="sectionHead"><div><h2>🛡️ Sekirite, Rapò & Backup</h2><small>Ekspòte done operasyon yo epi kenbe yon kopi sekirite.</small></div></div>
+    <div class="dataToolButtons">
+      <a class="toolBtn" href="/admin/export/orders.csv">📥 Rapò Kòmand CSV</a>
+      <a class="toolBtn" href="/admin/export/members.csv">👥 Rapò Manm CSV</a>
+      <a class="toolBtn backupBtn" href="/admin/backup.json">💾 Backup JSON</a>
+    </div>
+    <p class="muted">Backup la pa ekspòte modpas manm yo. Sesyon yo limite a 12 èdtan epi paj prive yo pa cache.</p>
+  </section>
+
   <section class="card memberStatsPanel">
     <div class="sectionHead"><h2>👥 Manm Promo Delivery</h2><small>Kwasans kominote a</small></div>
     <div class="memberStatGrid">
@@ -137,7 +221,20 @@
     <div class="tablewrap"><table class="memberTable"><thead><tr><th>Manm</th><th>Username</th><th>Telefòn</th><th>Enskri</th><th>Kòmand</th><th>Livré</th><th>Valè kòmand</th></tr></thead><tbody id="membersList"></tbody></table></div>
   </section>
 
-  <section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
+  
+  <section class="card">
+    <div class="sectionHead"><div><h2>🛵 Kont Livreur</h2><small>Ajoute, aktive/dezaktive oswa chanje modpas livreur.</small></div></div>
+    <div class="row2"><label>Non livreur<input id="newDriverName" placeholder="Eg. Jeff"></label><label>Modpas tanporè<input id="newDriverPassword" type="password" minlength="6"></label></div>
+    <button onclick="addDriverAccount()">+ Ajoute livreur</button>
+    <div id="driverAccounts" class="driverAccounts"></div>
+  </section>
+
+  <section class="card">
+    <div class="sectionHead"><div><h2>🔑 Demann Mot de passe oublié</h2><small>Admin ka mete yon modpas tanporè pou manm nan.</small></div></div>
+    <div id="passwordResetRequests"></div>
+  </section>
+
+<section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
 
   <section class="card">
     <h2>📣 Jesyon Piblisite & Anons</h2><p class="muted">Mete Paryaj Lakay, La Grâce Solutions, gwo bal, spektak oswa lòt anons sou paj kliyan an.</p>
@@ -156,7 +253,15 @@
     <button onclick="addProduct()">Ajoute</button><div id="productManager"></div>
   </section>
 
-  <section class="card"><h2>📦 Kòmand yo</h2><div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total / Peman</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
+  <section class="card orderManagerPanel">
+    <div class="sectionHead"><div><h2>📦 Kòmand yo</h2><small>Chèche epi filtre operasyon yo.</small></div></div>
+    <div class="orderFilters">
+      <input id="orderSearch" placeholder="🔎 Kòd, kliyan, telefòn..." oninput="renderOrders()">
+      <select id="orderStatusFilter" onchange="renderOrders()"><option value="">Tout estati</option><option>Nouveau</option><option>Préparation</option><option>En route</option><option>Livré</option><option>Annulé</option></select>
+      <select id="orderPaymentFilter" onchange="renderOrders()"><option value="">Tout peman</option><option>Cash</option><option>MonCash</option><option>NatCash</option></select>
+      <select id="orderDriverFilter" onchange="renderOrders()"><option value="">Tout livreur</option></select>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total / Peman</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
 </main>
 {% endif %}
 
@@ -168,7 +273,7 @@
     <div class="driverMiniStats">
       <div><small>Kòmand aktif</small><strong id="dActive">0</strong></div>
       <div><small>Livrezon fini</small><strong id="dDelivered">0</strong></div>
-      <div><small>Total livré</small><strong id="dDeliveredTotal">0 Gdes</strong></div>
+      <div><small>Total livré</small><strong id="dDeliveredTotal">0 Gdes</strong></div><div><small>Cash resevwa</small><strong id="dCashCollected">0 Gdes</strong></div>
     </div>
   </section>
   <div class="driverToolbar"><h2>Kòmand mwen</h2><button onclick="loadDriver()">↻ Rafrechi</button></div>

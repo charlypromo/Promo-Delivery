@@ -1,7 +1,7 @@
 const PAGE=document.body.dataset.page;
 const IS_MEMBER=document.body.dataset.member==='1';
 const CATS=[['all','✨','Tout'],['pain','🥖','Pain'],['sucre','🍚','Sucre'],['eau','💧','Dlo'],['food','🍛','Manje'],['gas','🔥','Gaz'],['taxi','🚕','Taxi'],['other','📦','Autres']];
-let products=[],cart=[],activeCat='all',orders=[],ads=[],members=[];
+let products=[],cart=[],activeCat='all',orders=[],ads=[],members=[],drivers=[],resetRequests=[];
 
 const fmt=n=>new Intl.NumberFormat('fr-FR').format(Number(n||0))+' Gdes';
 function toast(m){const t=document.getElementById('toast');if(!t)return;t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
@@ -55,11 +55,61 @@ function stageReached(current,stage){const a=['Nouveau','Préparation','En route
 
 async function initAdmin(){await reloadAdmin()}
 async function reloadAdmin(){
-  products=await api('/api/products');orders=await api('/api/orders');members=await api('/api/members');const st=await api('/api/stats');const ds=await api('/api/driver-stats');ads=await api('/api/admin/ads');
+  products=await api('/api/products');orders=await api('/api/orders');members=await api('/api/members');drivers=await api('/api/admin/drivers');resetRequests=await api('/api/admin/password-resets');const st=await api('/api/stats');const ds=await api('/api/driver-stats');ads=await api('/api/admin/ads');const summary=await api('/api/admin/summary');
   document.getElementById('sNew').textContent=st.Nouveau?.count||0;document.getElementById('sPrep').textContent=st['Préparation']?.count||0;document.getElementById('sRoute').textContent=st['En route']?.count||0;document.getElementById('sDone').textContent=st['Livré']?.count||0;document.getElementById('sRevenue').textContent=fmt(st.revenue_delivered||0);document.getElementById('sMembers').textContent=st.members||0;
   const mt=document.getElementById('sMembersToday'),mw=document.getElementById('sMembersWeek'),mm=document.getElementById('sMembersMonth'),mt2=document.getElementById('sMembersTotal2');
   if(mt)mt.textContent=st.members_today||0;if(mw)mw.textContent=st.members_week||0;if(mm)mm.textContent=st.members_month||0;if(mt2)mt2.textContent=st.members||0;
-  renderMembers();renderDriverStats(ds);renderAdsAdmin();renderAdminProducts();renderOrders();
+  renderMembers();renderDriverAccounts();renderResetRequests();renderDriverStats(ds);renderAdsAdmin();renderAdminProducts();populateDriverFilters();renderOrders();renderAdminSummary(summary);await loadFinance();
+}
+function renderAdminSummary(r){
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('rOrdersToday',r.orders_today||0);set('rActiveToday',r.active_today||0);set('rDeliveredToday',r.delivered_today||0);
+  set('rRevenueToday',fmt(r.delivered_revenue_today||0));set('rMonCash',fmt(r.moncash?.amount||0));set('rMonCashCount',(r.moncash?.count||0)+' tranzaksyon');
+  set('rNatCash',fmt(r.natcash?.amount||0));set('rNatCashCount',(r.natcash?.count||0)+' tranzaksyon');
+}
+
+async function loadFinance(){
+  const period=document.getElementById('financePeriod')?.value||'today';
+  const r=await api('/api/admin/finance?period='+encodeURIComponent(period));
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  set('fCash',fmt(r.cash?.amount||0));set('fCashCount',(r.cash?.count||0)+' tranzaksyon');
+  set('fMonCash',fmt(r.moncash?.amount||0));set('fMonCashCount',(r.moncash?.count||0)+' tranzaksyon');
+  set('fNatCash',fmt(r.natcash?.amount||0));set('fNatCashCount',(r.natcash?.count||0)+' tranzaksyon');
+  set('fSales',fmt(r.sales_total||0));set('fDelivered',(r.delivered_count||0)+' livré');
+}
+function populateDriverFilters(){
+  const filter=document.getElementById('orderDriverFilter');if(!filter)return;
+  const current=filter.value;
+  filter.innerHTML='<option value="">Tout livreur</option>'+drivers.filter(d=>d.active).map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+  filter.value=current;
+}
+function renderDriverAccounts(){
+  const box=document.getElementById('driverAccounts');if(!box)return;
+  box.innerHTML=drivers.length?drivers.map(d=>`<div class="driverAccountRow"><div><b>${esc(d.name)}</b><small>${d.active?'🟢 Aktif':'⚪ Dezaktive'}</small></div><div class="driverAccountActions"><button onclick="resetDriverPassword(${d.id})">🔐 Chanje modpas</button><button class="${d.active?'removeBtn':'saveBtn'}" onclick="toggleDriverAccount(${d.id},${!d.active})">${d.active?'Dezaktive':'Aktive'}</button></div></div>`).join(''):'<div class="muted">Pa gen kont livreur.</div>';
+}
+async function addDriverAccount(){
+  const name=document.getElementById('newDriverName').value.trim(),password=document.getElementById('newDriverPassword').value;
+  if(!name||password.length<6)return alert('Mete non livreur ak yon modpas omwen 6 karaktè.');
+  await api('/api/admin/drivers',{method:'POST',body:JSON.stringify({name,password})});
+  document.getElementById('newDriverName').value='';document.getElementById('newDriverPassword').value='';
+  await reloadAdmin();toast('Kont livreur ajoute');
+}
+async function toggleDriverAccount(id,active){await api('/api/admin/drivers/'+id,{method:'PATCH',body:JSON.stringify({active})});await reloadAdmin()}
+async function resetDriverPassword(id){
+  const password=prompt('Mete nouvo modpas livreur la (omwen 6 karaktè):');if(!password)return;
+  if(password.length<6)return alert('Modpas la twò kout.');
+  await api('/api/admin/drivers/'+id,{method:'PATCH',body:JSON.stringify({password})});toast('Modpas livreur chanje');
+}
+function renderResetRequests(){
+  const box=document.getElementById('passwordResetRequests');if(!box)return;
+  const pending=resetRequests.filter(r=>r.status==='En attente');
+  box.innerHTML=pending.length?pending.map(r=>`<div class="resetRequestRow"><div><b>@${esc(r.username)}</b><small>📞 ${esc(r.phone)} · ${esc((r.created_at||'').replace('T',' '))}</small></div><button onclick="resolveResetRequest(${r.id})">Bay modpas tanporè</button></div>`).join(''):'<div class="muted">Pa gen demann reset kounye a.</div>';
+}
+async function resolveResetRequest(id){
+  const password=prompt('Mete yon modpas tanporè pou manm nan (omwen 8 karaktè):');if(!password)return;
+  if(password.length<8)return alert('Modpas la dwe gen omwen 8 karaktè.');
+  await api('/api/admin/password-resets/'+id+'/resolve',{method:'POST',body:JSON.stringify({password})});
+  await reloadAdmin();toast('Demann reset rezoud');
 }
 function renderMembers(){
   const box=document.getElementById('membersList');if(!box)return;
@@ -86,7 +136,19 @@ function paymentAmountInfo(o){
   else if(diff > 0.01){cls='payOver';label='ℹ️ Depase '+fmt(diff);}
   return `<div class="paymentAdminBox"><b>${esc(o.payment)}</b><span>Total: ${fmt(total)}</span><span class="paidLine">Peye: <strong>${fmt(paid)}</strong></span>${o.transaction_id?`<span>Tx: ${esc(o.transaction_id)}</span>`:''}<span class="${cls}">${label}</span><span>${esc(o.payment_status||'')}</span></div>`;
 }
-function renderOrders(){const box=document.getElementById('orders');if(!box)return;box.innerHTML=orders.length?orders.map(o=>`<tr><td><b>${o.code}</b><br><small>${o.created_at}</small></td><td><b>${esc(o.customer)}</b><br>${esc(o.phone)}${o.customer_id?'<br><small>👤 Manm #'+o.customer_id+'</small>':''}</td><td>${itemsText(o)}${o.note?'<br><small>📝 '+esc(o.note)+'</small>':''}</td><td><b>${fmt(o.total)}</b><br><small>Fee ${fmt(o.delivery_fee)}</small>${paymentAmountInfo(o)}</td><td>${esc(o.address)}${o.landmark?'<br><small>📌 '+esc(o.landmark)+'</small>':''}</td><td><span class="badge ${statusClass(o.status)}">${o.status}</span><br><select onchange="patchOrder(${o.id},'status',this.value)">${['Nouveau','Préparation','En route','Livré','Annulé'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td><td><select onchange="patchOrder(${o.id},'driver',this.value)"><option value="">Non assigné</option>${['Jeff','Duckens','Jn Fritz'].map(d=>`<option ${d===o.driver?'selected':''}>${d}</option>`).join('')}</select></td><td>${o.payment!=='Cash'?`<button class="saveBtn" onclick="paymentStatus(${o.id},'Konfime')">Konfime</button> <button class="removeBtn" onclick="paymentStatus(${o.id},'Refize')">Refize</button><br><br>`:''}<button onclick="copyOrderSummaryById(${o.id})">📋 Mesaj</button> <button onclick="deleteOrder(${o.id})">Efase</button></td></tr>`).join(''):'<tr><td colspan="8">Pa gen kòmand.</td></tr>'}
+function renderOrders(){
+  const box=document.getElementById('orders');if(!box)return;
+  const q=(document.getElementById('orderSearch')?.value||'').trim().toLowerCase();
+  const sf=document.getElementById('orderStatusFilter')?.value||'';
+  const pf=document.getElementById('orderPaymentFilter')?.value||'';
+  const df=document.getElementById('orderDriverFilter')?.value||'';
+  const list=orders.filter(o=>{
+    const mq=!q||[o.code,o.customer,o.phone,o.address].some(v=>String(v||'').toLowerCase().includes(q));
+    return mq&&(!sf||o.status===sf)&&(!pf||o.payment===pf)&&(!df||o.driver===df);
+  });
+  const activeDrivers=drivers.filter(d=>d.active);
+  box.innerHTML=list.length?list.map(o=>`<tr><td><b>${o.code}</b><br><small>${o.created_at}</small></td><td><b>${esc(o.customer)}</b><br>${esc(o.phone)}${o.customer_id?'<br><small>👤 Manm #'+o.customer_id+'</small>':''}</td><td>${itemsText(o)}${o.note?'<br><small>📝 '+esc(o.note)+'</small>':''}</td><td><b>${fmt(o.total)}</b><br><small>Fee ${fmt(o.delivery_fee)}</small>${paymentAmountInfo(o)}</td><td>${esc(o.address)}${o.landmark?'<br><small>📌 '+esc(o.landmark)+'</small>':''}</td><td><span class="badge ${statusClass(o.status)}">${o.status}</span><br><select onchange="patchOrder(${o.id},'status',this.value)">${['Nouveau','Préparation','En route','Livré','Annulé'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td><td><select onchange="patchOrder(${o.id},'driver',this.value)"><option value="">Non assigné</option>${activeDrivers.map(d=>`<option ${d.name===o.driver?'selected':''}>${esc(d.name)}</option>`).join('')}</select></td><td>${o.payment!=='Cash'?`<button class="saveBtn" onclick="paymentStatus(${o.id},'Konfime')">Konfime</button> <button class="removeBtn" onclick="paymentStatus(${o.id},'Refize')">Refize</button><br><br>`:''}<button onclick="copyOrderSummaryById(${o.id})">📋 Mesaj</button> <button onclick="deleteOrder(${o.id})">Efase</button></td></tr>`).join(''):'<tr><td colspan="8">Pa gen kòmand ki koresponn ak filtè yo.</td></tr>';
+}
 async function patchOrder(id,key,val){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({[key]:val})});await reloadAdmin();toast('Mete ajou')}
 async function paymentStatus(id,status){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({payment_status:status})});await reloadAdmin();toast('Peman '+status.toLowerCase())}
 async function deleteOrder(id){if(confirm('Efase kòmand sa?')){await api('/api/orders/'+id,{method:'DELETE'});await reloadAdmin()}}
@@ -96,8 +158,8 @@ function phoneDigits(v){return String(v||'').replace(/\D/g,'')}
 function waPhone(v){let d=phoneDigits(v);if(d.length===8)d='509'+d;return d}
 async function loadDriver(){
   const stats=await api('/api/driver/me-stats');
-  const a=document.getElementById('dActive'),d=document.getElementById('dDelivered'),t=document.getElementById('dDeliveredTotal');
-  if(a)a.textContent=stats.active||0;if(d)d.textContent=stats.delivered||0;if(t)t.textContent=fmt(stats.delivered_total||0);
+  const a=document.getElementById('dActive'),d=document.getElementById('dDelivered'),t=document.getElementById('dDeliveredTotal'),cr=document.getElementById('dCashCollected');
+  if(a)a.textContent=stats.active||0;if(d)d.textContent=stats.delivered||0;if(t)t.textContent=fmt(stats.delivered_total||0);if(cr)cr.textContent=fmt(stats.cash_collected||0);
   orders=await api('/api/driver/orders');
   const box=document.getElementById('driverOrders');
   if(!box)return;
@@ -107,6 +169,7 @@ async function loadDriver(){
     <p class="driverAddress">📍 ${esc(o.address)}${o.landmark?'<br><small>Referans: '+esc(o.landmark)+'</small>':''}</p>
     <div class="driverItems">${itemsText(o)}</div>
     <div class="driverPayment"><span><b>${fmt(o.total)}</b></span><span>${esc(o.payment)}${o.payment!=='Cash'?' — '+esc(o.payment_status||''):''}</span></div>
+    ${o.payment==='Cash'?`<div class="cashReceiveBox"><label>💵 Cash resevwa</label><div><input id="cash-${o.id}" type="number" min="0" step="1" value="${o.cash_received||0}" placeholder="${o.total}"><button onclick="saveDriverCash(${o.id})">Anrejistre</button></div></div>`:''}
     <div class="driverContactActions">
       <a class="driverLink call" href="tel:${phoneDigits(o.phone)}">📞 Rele kliyan</a>
       <a class="driverLink whatsapp" target="_blank" rel="noopener" href="https://wa.me/${waPhone(o.phone)}?text=${encodeURIComponent('Bonjou '+o.customer+', se '+stats.driver+' nan Promo Delivery pou kòmand '+o.code+'.')}">💬 WhatsApp</a>
@@ -118,6 +181,12 @@ async function loadDriver(){
     </div>
   </div>`).join(''):'<div class="card emptyDriver"><b>✅ Pa gen kòmand aktif pou ou.</b><p>Nouvo kòmand Admin asiyen avè w ap parèt isit la.</p></div>';
 }
+async function saveDriverCash(id){
+  const el=document.getElementById('cash-'+id);if(!el)return;
+  const amount=Number(el.value||0);
+  await api('/api/driver/orders/'+id+'/cash',{method:'POST',body:JSON.stringify({amount})});
+  toast('Cash resevwa anrejistre');await loadDriver();
+}
 async function driverStatus(id,status){
   if(status==='Livré'&&!confirm('Konfime livrezon sa fèt?'))return;
   await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({status})});
@@ -125,3 +194,25 @@ async function driverStatus(id,status){
 }
 function copyOrderSummaryById(id){const o=orders.find(x=>x.id===id);if(!o)return;const txt=`PROMO DELIVERY\nKòmand: ${o.code}\nKliyan: ${o.customer}\nTelefòn: ${o.phone}\nAdrès: ${o.address}${o.landmark?' - '+o.landmark:''}\nAtik: ${o.items.map(i=>i.name+' x'+i.qty).join(', ')}\nTotal: ${fmt(o.total)}\nPeman: ${o.payment}${o.transaction_id?' / Tx: '+o.transaction_id:''}${o.payment!=='Cash'?' / Peye: '+fmt(o.paid_amount||0)+' / '+o.payment_status:''}\nEstati: ${o.status}`;if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Mesaj kòmand lan kopye'));else prompt('Kopye mesaj sa:',txt)}
 function toggleLoginRole(){const role=document.getElementById('loginRole'),user=document.getElementById('loginUser');if(!role||!user)return;if(role.value==='driver')user.placeholder='Jeff / Duckens / Jn Fritz';else if(role.value==='admin')user.placeholder='admin';else user.placeholder='username manm ou'}
+
+function notifyOrderChanges(list){
+  try{
+    const key='promoLastStatuses';
+    const prev=JSON.parse(localStorage.getItem(key)||'{}');
+    const next={};
+    (list||[]).forEach(o=>{
+      next[o.id]=o.status;
+      if(prev[o.id] && prev[o.id]!==o.status){
+        const msg=`Kòmand ${o.code}: ${o.status}`;
+        toast('🔔 '+msg);
+        if('Notification' in window && Notification.permission==='granted') new Notification('Promo Delivery',{body:msg});
+      }
+    });
+    localStorage.setItem(key,JSON.stringify(next));
+  }catch(e){}
+}
+async function enablePromoNotifications(){
+  if('Notification' in window && Notification.permission==='default'){
+    try{await Notification.requestPermission()}catch(e){}
+  }
+}

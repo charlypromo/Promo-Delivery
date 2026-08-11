@@ -49,3 +49,59 @@
 .paymentAdminBox{display:grid;gap:3px;margin-top:7px;padding:8px;border-radius:10px;background:#f7f7f7;border-left:4px solid var(--yellow);font-size:12px}
 .paymentAdminBox .paidLine strong{color:var(--red);font-size:15px}.payMatch{color:#15803d;font-weight:900}.payShort{color:#b91c1c;font-weight:900}.payOver{color:#1d4ed8;font-weight:900}.cashPayBadge{display:inline-block;margin-top:6px;font-weight:900;color:#15803d}
 @media(max-width:760px){.memberManagerPanel .sectionHead{display:grid;gap:10px}.memberManagerPanel .sectionHead input{max-width:none;width:100%}.paymentProofRow{grid-template-columns:1fr}}
+
+/* Promo Delivery V13 - finalisation & security */
+.profileGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.profileSuccess{background:#e8f7ed;border:1px solid #86d59e;color:#0f6b31;padding:12px 14px;border-radius:12px;margin:12px 0;font-weight:800}
+.opsDashboard{border-top:4px solid var(--yellow);border-left:5px solid var(--red)}
+.opsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.opsGrid>div{background:#0b0b0b;color:#fff;border-radius:14px;padding:15px;border-bottom:4px solid var(--yellow)}
+.opsGrid small{display:block;color:#f6d85a;font-weight:900}.opsGrid strong{display:block;font-size:23px;margin-top:6px}.opsGrid span{font-size:12px;color:#ddd}
+.moncashReport{border-left:4px solid #d51c2f}.natcashReport{border-left:4px solid #f58220}
+.dataTools{border-left:5px solid #111}.dataToolButtons{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.toolBtn{display:inline-block;text-decoration:none;background:#111;color:#fff;padding:11px 14px;border-radius:10px;font-weight:900;border-bottom:3px solid var(--yellow)}
+.toolBtn:hover{transform:translateY(-1px)}.backupBtn{background:var(--red)}
+@media(max-width:760px){.profileGrid,.opsGrid{grid-template-columns:1fr}.dataToolButtons{display:grid}.toolBtn{text-align:center}}
+
+/* Promo Delivery V14 — notifications & delivery control */
+.orderNotice{background:#fff7cc;border-left:5px solid var(--yellow);padding:12px 14px;border-radius:12px;margin-bottom:14px;font-weight:800}
+.cashReceiveBox{background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--yellow);padding:10px;border-radius:10px;margin-top:10px}
+.cashReceiveBox label{display:block;font-weight:900;margin-bottom:7px}
+.cashReceiveBox>div{display:flex;gap:8px}
+.cashReceiveBox input{flex:1;min-width:0}
+.cashReceiveBox button{background:#111;color:#fff;border-bottom:3px solid var(--yellow)}
+.driverMiniStats{grid-template-columns:repeat(4,1fr)}
+@media(max-width:760px){.driverMiniStats{grid-template-columns:1fr 1fr}.cashReceiveBox>div{display:grid}}
+
+/* Promo Delivery V15 — professional polish */
+.financePanel{border-top:4px solid var(--yellow)}
+.financePanel select{width:auto;min-width:140px}
+.financeGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.financeGrid>div{background:#111;color:#fff;border-radius:16px;padding:14px;border-bottom:4px solid var(--yellow)}
+.financeGrid small,.financeGrid span{display:block;color:#ddd}
+.financeGrid strong{display:block;font-size:23px;margin:6px 0}
+.cashFinance{border-left:5px solid #f5c400}.moncashFinance{border-left:5px solid #d6001c}.natcashFinance{border-left:5px solid #f97316}
+.driverAccounts{display:grid;gap:9px;margin-top:12px}
+.driverAccountRow,.resetRequestRow{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #eee;border-radius:14px;padding:12px;background:#fff}
+.driverAccountRow small,.resetRequestRow small{display:block;color:#777;margin-top:4px}
+.driverAccountActions{display:flex;gap:7px;flex-wrap:wrap}
+.orderFilters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.orderFilters input,.orderFilters select{margin:0}
+.loginCard a{color:var(--red);font-weight:800}
+@media(max-width:760px){
+  .financeGrid{grid-template-columns:1fr 1fr}
+  .orderFilters{grid-template-columns:1fr}
+  .driverAccountRow,.resetRequestRow{align-items:flex-start;flex-direction:column}
+  .driverAccountActions,.driverAccountActions button,.resetRequestRow button{width:100%}
+  .top{position:relative}
+  nav{width:100%;overflow-x:auto;padding-bottom:3px}
+  nav a{white-space:nowrap}
+  .tablewrap{-webkit-overflow-scrolling:touch}
+}
+@media(max-width:440px){
+  .financeGrid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .wrap{padding:9px}
+  .card{padding:13px}
+  .hero{padding:20px}
+}
