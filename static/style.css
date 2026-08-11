@@ -25,3 +25,4 @@ button{border:0;border-radius:11px;background:#111;color:#fff;padding:11px 14px;
 .saveBtn{background:#166534}
 .removeBtn{background:#991b1b}
 @media(max-width:760px){.productEditRow{grid-template-columns:44px 1fr}.editActions{grid-column:1/-1}.editFields{grid-template-columns:1fr}}
+.loginWrap{max-width:720px}.loginCard{max-width:560px;margin:0 auto}.loginCard form{display:grid;gap:16px}.loginError{background:#ffe6e8;color:#9b1c2d;border:1px solid #ffc2c9;padding:12px;border-radius:12px;margin-bottom:14px}

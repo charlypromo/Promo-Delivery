@@ -9,6 +9,7 @@ async function api(url,opt={}){const r=await fetch(url,{headers:{'Content-Type':
 function statusClass(s){return s==='Nouveau'?'new':s==='Préparation'?'prep':s==='En route'?'route':s==='Livré'?'done':'cancel'}
 function itemsText(o){return o.items.map(i=>`${i.icon||''} ${i.name} × ${i.qty}`).join('<br>')}
 
+if(PAGE==='login') toggleLoginRole();
 if(PAGE==='client') initClient();
 if(PAGE==='admin') initAdmin();
 if(PAGE==='driver') initDriver();
@@ -111,11 +112,10 @@ async function deleteOrder(id){if(confirm('Efase kòmand sa?')){await api('/api/
 
 async function initDriver(){await loadDriver()}
 async function loadDriver(){
-  orders=await api('/api/orders');const d=document.getElementById('driverSelect').value;
-  const list=orders.filter(o=>o.driver===d&&!['Livré','Annulé'].includes(o.status));
-  document.getElementById('driverOrders').innerHTML=list.length?list.map(o=>`<div class="driverCard"><h3>${o.code} <span class="badge ${statusClass(o.status)}">${o.status}</span></h3>
+  orders=await api('/api/driver/orders');
+  document.getElementById('driverOrders').innerHTML=orders.length?orders.map(o=>`<div class="driverCard"><h3>${o.code} <span class="badge ${statusClass(o.status)}">${o.status}</span></h3>
     <p><b>${o.customer}</b> — ${o.phone}</p><p>${o.address}${o.landmark?' — '+o.landmark:''}</p><p>${itemsText(o)}</p><p><b>${fmt(o.total)}</b> — ${o.payment}</p>
-    <button onclick="driverStatus(${o.id},'En route')">🛵 Sou wout</button> <button onclick="driverStatus(${o.id},'Livré')">✅ Livré</button></div>`).join(''):'<div class="card muted">Pa gen kòmand aktif pou '+d+'.</div>';
+    <button onclick="driverStatus(${o.id},'En route')">🛵 Sou wout</button> <button onclick="driverStatus(${o.id},'Livré')">✅ Livré</button></div>`).join(''):'<div class="card muted">Pa gen kòmand aktif pou ou.</div>';
 }
 async function driverStatus(id,status){await api('/api/orders/'+id,{method:'PATCH',body:JSON.stringify({status})});await loadDriver();toast('Estati mete ajou')}
 
@@ -136,4 +136,10 @@ Estati: ${o.status}`;
   }else{
     prompt('Kopye mesaj sa:',txt);
   }
+}
+
+function toggleLoginRole(){
+  const role=document.getElementById('loginRole'), user=document.getElementById('loginUser');
+  if(!role||!user)return;
+  if(role.value==='driver'){user.placeholder='Junior / Jonathan / Edwin';}else{user.placeholder='admin';}
 }

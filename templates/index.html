@@ -15,10 +15,25 @@
   </div>
   <nav>
     <a href="/" class="{{ 'active' if page=='client' else '' }}">Client</a>
-    <a href="/admin" class="{{ 'active' if page=='admin' else '' }}">Admin</a>
-    <a href="/driver" class="{{ 'active' if page=='driver' else '' }}">Livreur</a>
+    {% if page in ['admin','driver'] %}<a href="/logout">Déconnexion</a>{% else %}<a href="/login" class="{{ 'active' if page=='login' else '' }}">Connexion</a>{% endif %}
   </nav>
 </header>
+
+
+{% if page == 'login' %}
+<main class="wrap loginWrap">
+  <section class="hero"><h1>Connexion sécurisée 🔐</h1><p>Admin ak livreur sèlman.</p></section>
+  <section class="card loginCard">
+    {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+      <label>Kalite aksè<select name="role" id="loginRole" onchange="toggleLoginRole()"><option value="admin">Admin</option><option value="driver">Livreur</option></select></label>
+      <label>Non itilizatè<input name="username" id="loginUser" autocomplete="username" placeholder="admin"></label>
+      <label>Modpas<input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="primary" type="submit">KONEKTE</button>
+    </form>
+  </section>
+</main>
+{% endif %}
 
 {% if page == 'client' %}
 <main class="wrap">
@@ -66,7 +81,7 @@
 
 {% if page == 'admin' %}
 <main class="wrap">
-  <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur ak rapò.</p></section>
+  <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur ak rapò. 🔐 {{ auth_name }}</p></section>
   <div class="stats">
     <div><small>Nouvo</small><strong id="sNew">0</strong></div>
     <div><small>Preparasyon</small><strong id="sPrep">0</strong></div>
@@ -96,10 +111,7 @@
 
 {% if page == 'driver' %}
 <main class="wrap">
-  <section class="hero"><h1>Espace Livreur 🛵</h1><p>Chwazi non w epi jere livrezon ki asiyen avè w.</p></section>
-  <section class="card">
-    <label>Chwazi livreur<select id="driverSelect" onchange="loadDriver()"><option>Junior</option><option>Jonathan</option><option>Edwin</option></select></label>
-  </section>
+  <section class="hero"><h1>Espace Livreur 🛵</h1><p>Byenvini <b>{{ auth_name }}</b>. Men livrezon ki asiyen avè w.</p></section>
   <div id="driverOrders" class="driverGrid"></div>
 </main>
 {% endif %}

@@ -1,9 +1,42 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import os, json
+import os, json, hmac
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "CHANGE-ME-PROMO-DELIVERY-2026")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.getenv("COOKIE_SECURE", "1") == "1"
+
+ADMIN_USER = os.getenv("ADMIN_USER", "admin")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "PromoAdmin2026!")
+DRIVER_PASSWORDS = {
+    "Junior": os.getenv("DRIVER_JUNIOR_PASSWORD", "Junior2026!"),
+    "Jonathan": os.getenv("DRIVER_JONATHAN_PASSWORD", "Jonathan2026!"),
+    "Edwin": os.getenv("DRIVER_EDWIN_PASSWORD", "Edwin2026!"),
+}
+
+def admin_required(fn):
+    @wraps(fn)
+    def wrapped(*args, **kwargs):
+        if session.get("role") != "admin":
+            if request.path.startswith("/api/"):
+                return jsonify({"error":"unauthorized"}), 401
+            return redirect(url_for("login", next=request.path))
+        return fn(*args, **kwargs)
+    return wrapped
+
+def driver_required(fn):
+    @wraps(fn)
+    def wrapped(*args, **kwargs):
+        if session.get("role") != "driver" or not session.get("driver"):
+            if request.path.startswith("/api/"):
+                return jsonify({"error":"unauthorized"}), 401
+            return redirect(url_for("login", next=request.path))
+        return fn(*args, **kwargs)
+    return wrapped
 
 database_url = os.getenv("DATABASE_URL", "").strip()
 if database_url.startswith("postgres://"):
@@ -78,11 +111,34 @@ def seed_products():
 @app.route("/")
 def client(): return render_template("index.html", page="client")
 
+@app.route("/login", methods=["GET","POST"])
+def login():
+    error = ""
+    if request.method == "POST":
+        role = request.form.get("role", "")
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        if role == "admin" and hmac.compare_digest(username, ADMIN_USER) and hmac.compare_digest(password, ADMIN_PASSWORD):
+            session.clear(); session["role"]="admin"; session["name"]="Admin"
+            return redirect("/admin")
+        if role == "driver" and username in DRIVER_PASSWORDS and hmac.compare_digest(password, DRIVER_PASSWORDS[username]):
+            session.clear(); session["role"]="driver"; session["driver"]=username; session["name"]=username
+            return redirect("/driver")
+        error = "Non itilizatè oswa modpas pa kòrèk."
+    return render_template("index.html", page="login", error=error)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
 @app.route("/admin")
-def admin(): return render_template("index.html", page="admin")
+@admin_required
+def admin(): return render_template("index.html", page="admin", auth_name=session.get("name"))
 
 @app.route("/driver")
-def driver(): return render_template("index.html", page="driver")
+@driver_required
+def driver(): return render_template("index.html", page="driver", auth_name=session.get("driver"))
 
 @app.route("/health")
 def health(): return {"ok":True,"service":"Promo Delivery"}
@@ -92,6 +148,7 @@ def products():
     return jsonify([p.as_dict() for p in Product.query.filter_by(active=True).order_by(Product.id).all()])
 
 @app.post("/api/products")
+@admin_required
 def add_product():
     d=request.get_json(silent=True) or {}
     name=str(d.get("name","")).strip()
@@ -104,6 +161,7 @@ def add_product():
 
 
 @app.put("/api/products/<int:pid>")
+@admin_required
 def edit_product(pid):
     p = db.session.get(Product, pid)
     if not p:
@@ -127,6 +185,7 @@ def edit_product(pid):
     return jsonify({"ok":True,"product":p.as_dict()})
 
 @app.delete("/api/products/<int:pid>")
+@admin_required
 def remove_product(pid):
     p=db.session.get(Product,pid)
     if not p: return jsonify({"error":"not_found"}),404
@@ -134,6 +193,7 @@ def remove_product(pid):
     return jsonify({"ok":True})
 
 @app.get("/api/orders")
+@admin_required
 def orders():
     return jsonify([o.as_dict() for o in Order.query.order_by(Order.id.desc()).all()])
 
@@ -167,13 +227,33 @@ def create_order():
 def patch_order(oid):
     o=db.session.get(Order,oid)
     if not o: return jsonify({"error":"not_found"}),404
+    role=session.get("role")
     d=request.get_json(silent=True) or {}
-    if "status" in d: o.status=str(d["status"])
-    if "driver" in d: o.driver=str(d["driver"])
+    if role == "admin":
+        if "status" in d: o.status=str(d["status"])
+        if "driver" in d: o.driver=str(d["driver"])
+    elif role == "driver" and o.driver == session.get("driver"):
+        if "status" not in d or str(d["status"]) not in ("En route","Livré"):
+            return jsonify({"error":"forbidden"}),403
+        o.status=str(d["status"])
+    else:
+        return jsonify({"error":"unauthorized"}),401
     db.session.commit()
     return jsonify({"ok":True})
 
+@app.get("/api/driver/orders")
+@driver_required
+def driver_orders():
+    name=session.get("driver")
+    rows=Order.query.filter_by(driver=name).order_by(Order.id.desc()).all()
+    return jsonify([o.as_dict() for o in rows if o.status not in ("Livré","Annulé")])
+
+@app.get("/api/me")
+def me():
+    return jsonify({"role":session.get("role"),"name":session.get("name"),"driver":session.get("driver")})
+
 @app.delete("/api/orders/<int:oid>")
+@admin_required
 def remove_order(oid):
     o=db.session.get(Order,oid)
     if not o: return jsonify({"error":"not_found"}),404
@@ -181,6 +261,7 @@ def remove_order(oid):
     return jsonify({"ok":True})
 
 @app.get("/api/stats")
+@admin_required
 def stats():
     result={}
     rows=db.session.query(Order.status,db.func.count(Order.id),db.func.coalesce(db.func.sum(Order.total),0)).group_by(Order.status).all()
