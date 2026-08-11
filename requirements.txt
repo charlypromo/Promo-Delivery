@@ -1,6 +1,6 @@
-PROMO DELIVERY V15.2
-- Fix upload foto piblisite PNG/JPG/JPEG
-- Max 5 MB
-- Foto upload la sove nan bazdone
-- Espas Piblisite monte anlè paj kliyan, imedyatman apre hero a
-- URL imaj rete opsyonèl
+Flask>=3.0,<4
+Flask-SQLAlchemy>=3.1,<4
+SQLAlchemy>=2.0,<3
+gunicorn>=22,<24
+psycopg2-binary>=2.9,<3
+Werkzeug>=3.0,<4
