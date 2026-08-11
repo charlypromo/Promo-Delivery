@@ -1,120 +1,299 @@
-:root{--red:#b00020;--yellow:#f5c400;--black:#080808;--white:#ffffff;--bg:#f7f7f7;--line:#e5e7eb;--muted:#6b7280;--green:#15803d;--orange:#f97316}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#111}.top{position:sticky;top:0;z-index:50;background:linear-gradient(110deg,#050505 0%,#111 68%,#b00020 100%);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:14px;box-shadow:0 5px 20px #0003}.brand{display:flex;align-items:center;gap:10px}.brand b{font-size:21px}.brand small{display:block;color:#ddd;margin-top:3px}.logoBox{width:115px;height:58px;border-radius:13px;background:#fff;display:grid;place-items:center;overflow:hidden;border:2px solid var(--yellow)}
-.logoBox img{width:100%;height:100%;object-fit:contain;padding:4px}nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap}nav a{color:#ddd;text-decoration:none;padding:8px 11px;border-radius:999px;font-weight:800;font-size:13px}nav a.active{background:var(--red);color:#fff;box-shadow:inset 0 -3px 0 var(--yellow)}.memberHello{font-size:12px;color:#fff;background:#ffffff18;padding:7px 10px;border-radius:999px}.wrap{max-width:1080px;margin:auto;padding:18px}.hero{background:linear-gradient(145deg,#080808,#171717 72%,#7d0017);color:#fff;border-radius:24px;padding:25px;margin-bottom:18px}.hero h1{margin:0;font-size:34px}.hero p{color:#ddd}.heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.cta{display:inline-block;background:var(--red);border-bottom:3px solid var(--yellow);color:#fff;text-decoration:none;padding:11px 16px;border-radius:12px;font-weight:900}.cta.secondary{background:#fff;color:#111}.memberBadge{display:inline-block;margin-top:12px;background:#14532d;color:#fff;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:900}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;margin:16px 0}.card h2{margin-top:0}.sectionHead{display:flex;justify-content:space-between;align-items:center;gap:10px}.sectionHead h2{margin:0}.sectionHead small{color:var(--muted)}label{display:block;font-size:12px;font-weight:800;color:#555;margin:8px 0}input,textarea,select{width:100%;padding:11px;border:1px solid #d5d8dd;border-radius:11px;margin-top:5px;background:#fff}textarea{min-height:72px}button{border:0;border-radius:11px;background:#111;color:#fff;padding:11px 14px;font-weight:900;cursor:pointer}.primary{width:100%;background:var(--red);padding:14px;font-size:15px}.row{display:flex;gap:8px}.row input{margin:0}.row button{flex:0 0 auto}.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.center{text-align:center}.memberGate{text-align:center;border:2px dashed #d1d5db}.memberIdentity{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#f9fafb;border-radius:14px;padding:12px}.memberIdentity small{display:block;color:var(--muted);font-size:11px}.cats{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}.cat{background:#fff;border:1px solid var(--line);border-radius:16px;text-align:center;padding:12px 4px;cursor:pointer}.cat.active{border:2px solid var(--red);background:#fff5f6}.cat span{display:block;font-size:28px}.cat b{font-size:11px}.products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.product{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;gap:10px;align-items:center}.pico{width:55px;height:55px;border-radius:15px;background:#fff0f2;display:grid;place-items:center;font-size:28px}.pmeta{flex:1}.pmeta small{display:block;color:var(--muted);margin-top:3px}.pmeta strong{display:block;color:var(--red);margin-top:6px}.miniLogin{background:#111;color:#fff;text-decoration:none;padding:9px 11px;border-radius:10px;font-size:11px;font-weight:900}.cartrow{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed #ddd;padding:9px 0}.qbtn{padding:5px 8px;background:#eee;color:#111}.total{display:flex;justify-content:space-between;font-size:19px;padding-top:12px}.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.stats>div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px}.stats small{color:var(--muted);font-weight:800}.stats strong{display:block;font-size:24px;margin-top:7px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:900px}th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;font-size:12px;vertical-align:top}th{background:#fafafa}.badge{display:inline-block;border-radius:999px;padding:5px 8px;font-weight:900;font-size:11px}.new{background:#fff1f2;color:#be123c}.prep{background:#fff7ed;color:#c2410c}.route{background:#eff6ff;color:#1d4ed8}.done{background:#f0fdf4;color:#15803d}.cancel{background:#eee;color:#555}.driverGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.driverCard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px}.driverCard h3{margin-top:0}.muted{color:var(--muted);font-size:12px}.success{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0;border-radius:13px;padding:11px;margin-top:12px}.toast{display:none;position:fixed;bottom:18px;right:18px;background:#111;color:#fff;padding:12px 14px;border-radius:12px;z-index:90}.productEditRow{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eee}.editIcon{width:44px;height:44px;border-radius:12px;background:#fff0f2;display:grid;place-items:center;font-size:24px}.editFields{display:grid;grid-template-columns:1fr 130px;gap:8px}.editFields input{margin:0}.editActions{display:flex;gap:6px}.saveBtn{background:#166534}.removeBtn{background:#991b1b}.loginWrap{max-width:720px}.loginCard{max-width:560px;margin:0 auto}.loginCard form{display:grid;gap:14px}.loginError{background:#ffe6e8;color:#9b1c2d;border:1px solid #ffc2c9;padding:12px;border-radius:12px;margin-bottom:14px}.payment-section{margin:14px 0}.payment-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0}.pay-btn{min-height:100px;background:#fff;color:#111;border:2px solid #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}.pay-btn img{width:58px;height:58px;object-fit:contain;border-radius:12px}.pay-btn .cash-icon{font-size:38px}.pay-btn.cash.active{border-color:var(--green);background:#f0fdf4}.pay-btn.moncash.active{border-color:#dc2626;background:#fff1f2}.pay-btn.natcash.active{border-color:var(--orange);background:#fff7ed}.payment-info{padding:12px;border:1px solid #fde68a;background:#fffbeb;border-radius:12px;margin:10px 0}.transaction-box{padding:12px;border:1px solid #fecdd3;background:#fff1f2;border-radius:12px}.transaction-box small{color:#6b7280}.driverStatCard{display:grid;grid-template-columns:1fr auto auto;gap:14px;padding:10px 0;border-bottom:1px solid #eee}.driverStatCard:last-child{border-bottom:0}.driverStatCard b{color:#15803d}.adsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.adCard{overflow:hidden;border:1px solid var(--line);border-radius:17px;background:#fff}.adCard img{width:100%;height:150px;object-fit:cover;display:block}.adPlaceholder{height:115px;display:grid;place-items:center;font-size:46px;background:linear-gradient(135deg,#fff7ed,#fff1f2)}.adBody{padding:13px}.adBody h3{margin:0 0 7px}.adBody p{font-size:12px;color:#555;min-height:30px}.adBody a{font-weight:900;color:var(--red);text-decoration:none}.adManager{margin-top:14px}.adAdminRow{display:grid;grid-template-columns:65px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eee}.adAdminRow>div:first-child{font-size:35px}.adAdminRow img{width:58px;height:58px;object-fit:cover;border-radius:10px}.adAdminRow small{display:block;color:var(--muted);margin-top:3px}.myOrders{display:grid;gap:10px;margin-top:12px}.myOrderCard{border:1px solid var(--line);border-radius:16px;padding:13px}.myOrderTop{display:flex;justify-content:space-between;gap:10px}.orderMeta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#555}.progressTrack{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:14px 0}.progressTrack span{position:relative;text-align:center;background:#eee;border-radius:999px;padding:7px;color:#777;font-weight:900}.progressTrack span.reached{background:#dcfce7;color:#166534}.progressTrack small{display:block;font-size:9px;margin-top:3px}.adSection{border-top:4px solid #f59e0b}
-@media(max-width:760px){.top{flex-direction:column;align-items:flex-start}.wrap{padding:12px}.hero h1{font-size:28px}.cats{grid-template-columns:repeat(4,1fr)}.products,.driverGrid,.row2,.adsGrid,.memberIdentity{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.productEditRow{grid-template-columns:44px 1fr}.editActions{grid-column:1/-1}.editFields{grid-template-columns:1fr}.payment-buttons{grid-template-columns:1fr}.pay-btn{min-height:88px}.driverStatCard{grid-template-columns:1fr auto}.driverStatCard b{grid-column:2}.adAdminRow{grid-template-columns:50px 1fr}.adAdminRow>div:last-child{grid-column:1/-1}.progressTrack{grid-template-columns:1fr 1fr}.sectionHead{align-items:flex-start;flex-direction:column}}
+<!doctype html>
+<html lang="ht">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Promo Delivery V15</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
+<header class="top">
+  <div class="brand">
+    <div class="logoBox"><img src="{{ url_for('static', filename='promo-logo.jpeg') }}" alt="Promo Bar & Multi Services"></div>
+    <div><b>PROMO DELIVERY</b><small>Ou mande, nou livre 🛵</small></div>
+  </div>
+  <nav>
+    <a href="/" class="{{ 'active' if page=='client' else '' }}">Akèy</a>
+    {% if member %}<span class="memberHello">👤 {{ member.full_name }}</span><a href="#myOrders">Kòmand mwen yo</a><a href="/profile" class="{{ 'active' if page=='profile' else '' }}">Kont mwen</a><a href="/logout">Dekonekte</a>
+    {% elif page in ['admin','driver'] %}<a href="/logout">Dekonekte</a>
+    {% else %}<a href="/register" class="{{ 'active' if page=='register' else '' }}">Enskri</a><a href="/login" class="{{ 'active' if page=='login' else '' }}">Konekte</a>{% endif %}
+  </nav>
+</header>
 
-/* Promo Delivery V11 */
-.top{border-bottom:4px solid var(--yellow)}
-.brand b{color:#fff;letter-spacing:.3px}
-.brand small{color:#f8e79a}
-.primary{border-bottom:4px solid var(--yellow)}
-.memberStatMain{border-top:4px solid var(--yellow)!important}
-.memberStatsPanel{border-left:5px solid var(--red);border-top:3px solid var(--yellow)}
-.memberStatGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
-.memberStatGrid>div{background:#0b0b0b;color:#fff;border-radius:14px;padding:14px;border-bottom:4px solid var(--yellow)}
-.memberStatGrid small{display:block;color:#f6d85a;font-weight:900}
-.memberStatGrid strong{display:block;font-size:27px;margin-top:6px}
-.driverHero{border-bottom:5px solid var(--yellow)}
-.driverMiniStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
-.driverMiniStats>div{background:#fff;color:#111;border-radius:14px;padding:13px;border-bottom:4px solid var(--yellow)}
-.driverMiniStats small{color:#666;font-weight:900}
-.driverMiniStats strong{display:block;font-size:22px;margin-top:5px;color:var(--red)}
-.driverToolbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.driverToolbar button{background:var(--red);border-bottom:3px solid var(--yellow)}
-.driverCard{border-top:4px solid var(--red);box-shadow:0 6px 18px #0000000d}
-.driverCardTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.driverCardTop h3{margin:0}
-.driverCustomer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
-.driverAddress{background:#fff8db;border-left:4px solid var(--yellow);padding:10px;border-radius:10px}
-.driverItems{background:#f8f8f8;padding:10px;border-radius:10px;line-height:1.6}
-.driverPayment{display:flex;justify-content:space-between;gap:10px;margin:12px 0;font-size:13px}
-.driverContactActions,.driverStatusActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
-.driverLink{display:inline-block;text-decoration:none;color:#fff;padding:10px 12px;border-radius:10px;font-weight:900;font-size:12px}
-.driverLink.call{background:#111;border-bottom:3px solid var(--yellow)}
-.driverLink.whatsapp{background:#15803d}
-.prepAction{background:#b45309}.routeAction{background:#1d4ed8}.doneAction{background:#15803d}
-.emptyDriver{text-align:center;border:2px dashed #ddd}
-@media(max-width:760px){
-  .logoBox{width:100px;height:52px}
-  .memberStatGrid,.driverMiniStats{grid-template-columns:1fr 1fr}
-  .driverContactActions,.driverStatusActions{display:grid;grid-template-columns:1fr}
-  .driverLink,.driverStatusActions button{width:100%;text-align:center}
-}
+{% if page == 'register' %}
+<main class="wrap loginWrap">
+  <section class="hero"><h1>Vin Manm Promo Delivery 🎉</h1><p>Kreye kont ou pou pase kòmand epi swiv tout livrezon ou yo.</p></section>
+  <section class="card loginCard">
+    {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+    <form method="post" action="/register">
+      <label>Non konplè<input name="full_name" autocomplete="name" required></label>
+      <label>Telefòn<input name="phone" autocomplete="tel" placeholder="+509 ..." required></label>
+      <label>Username<input name="username" autocomplete="username" minlength="3" required></label>
+      <label>Modpas<input name="password" type="password" autocomplete="new-password" minlength="6" required></label>
+      <label>Konfime modpas<input name="confirm_password" type="password" autocomplete="new-password" minlength="6" required></label>
+      <button class="primary" type="submit">KREYE KONT MWEN</button>
+      <p class="muted center">Ou deja manm? <a href="/login">Konekte isit la</a>.</p>
+    </form>
+  </section>
+</main>
+{% endif %}
 
-/* Promo Delivery V12 - members & payment verification */
-.paymentProofRow{align-items:end}.paymentProofRow input{font-weight:800}
-.memberManagerPanel{border-top:4px solid var(--yellow);border-left:5px solid var(--red)}
-.memberManagerPanel .sectionHead{align-items:center}.memberManagerPanel .sectionHead input{max-width:360px}
-.memberTable td,.memberTable th{white-space:nowrap}
-.paymentAdminBox{display:grid;gap:3px;margin-top:7px;padding:8px;border-radius:10px;background:#f7f7f7;border-left:4px solid var(--yellow);font-size:12px}
-.paymentAdminBox .paidLine strong{color:var(--red);font-size:15px}.payMatch{color:#15803d;font-weight:900}.payShort{color:#b91c1c;font-weight:900}.payOver{color:#1d4ed8;font-weight:900}.cashPayBadge{display:inline-block;margin-top:6px;font-weight:900;color:#15803d}
-@media(max-width:760px){.memberManagerPanel .sectionHead{display:grid;gap:10px}.memberManagerPanel .sectionHead input{max-width:none;width:100%}.paymentProofRow{grid-template-columns:1fr}}
+{% if page == 'login' %}
+<main class="wrap loginWrap">
+  <section class="hero"><h1>Konekte 🔐</h1><p>Manm Promo Delivery, Admin ak livreur.</p></section>
+  <section class="card loginCard">
+    {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+      <label>Kalite aksè<select name="role" id="loginRole" onchange="toggleLoginRole()"><option value="customer">Manm / Kliyan</option><option value="admin">Admin</option><option value="driver">Livreur</option></select></label>
+      <label>Username / Non itilizatè<input name="username" id="loginUser" autocomplete="username" placeholder="username" required></label>
+      <label>Modpas<input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="primary" type="submit">KONEKTE</button>
+      <p class="muted center">Ou poko manm? <a href="/register">Enskri gratis</a> · <a href="/forgot-password">Mot de passe oublié?</a></p>
+    </form>
+  </section>
+</main>
+{% endif %}
 
-/* Promo Delivery V13 - finalisation & security */
-.profileGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.profileSuccess{background:#e8f7ed;border:1px solid #86d59e;color:#0f6b31;padding:12px 14px;border-radius:12px;margin:12px 0;font-weight:800}
-.opsDashboard{border-top:4px solid var(--yellow);border-left:5px solid var(--red)}
-.opsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
-.opsGrid>div{background:#0b0b0b;color:#fff;border-radius:14px;padding:15px;border-bottom:4px solid var(--yellow)}
-.opsGrid small{display:block;color:#f6d85a;font-weight:900}.opsGrid strong{display:block;font-size:23px;margin-top:6px}.opsGrid span{font-size:12px;color:#ddd}
-.moncashReport{border-left:4px solid #d51c2f}.natcashReport{border-left:4px solid #f58220}
-.dataTools{border-left:5px solid #111}.dataToolButtons{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.toolBtn{display:inline-block;text-decoration:none;background:#111;color:#fff;padding:11px 14px;border-radius:10px;font-weight:900;border-bottom:3px solid var(--yellow)}
-.toolBtn:hover{transform:translateY(-1px)}.backupBtn{background:var(--red)}
-@media(max-width:760px){.profileGrid,.opsGrid{grid-template-columns:1fr}.dataToolButtons{display:grid}.toolBtn{text-align:center}}
 
-/* Promo Delivery V14 — notifications & delivery control */
-.orderNotice{background:#fff7cc;border-left:5px solid var(--yellow);padding:12px 14px;border-radius:12px;margin-bottom:14px;font-weight:800}
-.cashReceiveBox{background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--yellow);padding:10px;border-radius:10px;margin-top:10px}
-.cashReceiveBox label{display:block;font-weight:900;margin-bottom:7px}
-.cashReceiveBox>div{display:flex;gap:8px}
-.cashReceiveBox input{flex:1;min-width:0}
-.cashReceiveBox button{background:#111;color:#fff;border-bottom:3px solid var(--yellow)}
-.driverMiniStats{grid-template-columns:repeat(4,1fr)}
-@media(max-width:760px){.driverMiniStats{grid-template-columns:1fr 1fr}.cashReceiveBox>div{display:grid}}
+{% if page == 'forgot' %}
+<main class="wrap loginWrap">
+  <section class="hero"><h1>🔑 Mot de passe oublié</h1><p>Voye yon demann reset bay Admin Promo Delivery.</p></section>
+  <section class="card loginCard">
+    {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+    {% if success %}<div class="profileSuccess">✅ {{ success }}</div>{% endif %}
+    <form method="post" action="/forgot-password">
+      <label>Username<input name="username" autocomplete="username" required></label>
+      <label>Telefòn ki sou kont lan<input name="phone" required></label>
+      <button class="primary" type="submit">VOYE DEMANN RESET</button>
+      <p class="muted center"><a href="/login">← Retounen konekte</a></p>
+    </form>
+  </section>
+</main>
+{% endif %}
 
-/* Promo Delivery V15 — professional polish */
-.financePanel{border-top:4px solid var(--yellow)}
-.financePanel select{width:auto;min-width:140px}
-.financeGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
-.financeGrid>div{background:#111;color:#fff;border-radius:16px;padding:14px;border-bottom:4px solid var(--yellow)}
-.financeGrid small,.financeGrid span{display:block;color:#ddd}
-.financeGrid strong{display:block;font-size:23px;margin:6px 0}
-.cashFinance{border-left:5px solid #f5c400}.moncashFinance{border-left:5px solid #d6001c}.natcashFinance{border-left:5px solid #f97316}
-.driverAccounts{display:grid;gap:9px;margin-top:12px}
-.driverAccountRow,.resetRequestRow{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #eee;border-radius:14px;padding:12px;background:#fff}
-.driverAccountRow small,.resetRequestRow small{display:block;color:#777;margin-top:4px}
-.driverAccountActions{display:flex;gap:7px;flex-wrap:wrap}
-.orderFilters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.orderFilters input,.orderFilters select{margin:0}
-.loginCard a{color:var(--red);font-weight:800}
-@media(max-width:760px){
-  .financeGrid{grid-template-columns:1fr 1fr}
-  .orderFilters{grid-template-columns:1fr}
-  .driverAccountRow,.resetRequestRow{align-items:flex-start;flex-direction:column}
-  .driverAccountActions,.driverAccountActions button,.resetRequestRow button{width:100%}
-  .top{position:relative}
-  nav{width:100%;overflow-x:auto;padding-bottom:3px}
-  nav a{white-space:nowrap}
-  .tablewrap{-webkit-overflow-scrolling:touch}
-}
-@media(max-width:440px){
-  .financeGrid{grid-template-columns:1fr}
-  .stats{grid-template-columns:1fr 1fr}
-  .wrap{padding:9px}
-  .card{padding:13px}
-  .hero{padding:20px}
-}
+{% if page == 'profile' %}
+<main class="wrap loginWrap profileWrap">
+  <section class="hero"><h1>👤 Kont mwen</h1><p>Jere enfòmasyon manm ou ak sekirite modpas ou.</p></section>
+  {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+  {% if success %}<div class="profileSuccess">✅ {{ success }}</div>{% endif %}
+  <div class="profileGrid">
+    <section class="card loginCard">
+      <h2>Enfòmasyon manm</h2>
+      <form method="post" action="/profile">
+        <input type="hidden" name="action" value="profile">
+        <label>Non konplè<input name="full_name" value="{{ member.full_name }}" required></label>
+        <label>Telefòn<input name="phone" value="{{ member.phone }}" required></label>
+        <label>Username<input value="{{ member.username }}" disabled></label>
+        <button class="primary" type="submit">SOVE PROFIL</button>
+      </form>
+    </section>
+    <section class="card loginCard">
+      <h2>🔐 Chanje modpas</h2>
+      <form method="post" action="/profile">
+        <input type="hidden" name="action" value="password">
+        <label>Modpas aktyèl<input name="current_password" type="password" autocomplete="current-password" required></label>
+        <label>Nouvo modpas<input name="new_password" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label>Konfime nouvo modpas<input name="confirm_password" type="password" minlength="8" autocomplete="new-password" required></label>
+        <button class="primary" type="submit">CHANJE MODPAS</button>
+      </form>
+      <p class="muted">Pou sekirite, modpas yo pa janm vizib nan Admin.</p>
+    </section>
+  </div>
+</main>
+{% endif %}
 
-/* Ads direct photo upload */
-.adImagePreview{margin:8px 0 12px}
-.adImagePreview img{display:block;max-width:240px;max-height:180px;object-fit:contain;border-radius:14px;border:2px solid var(--yellow);background:#fff;padding:5px}
-.adImagePreview small{display:block;margin-top:5px;color:#666}
-input[type=file]{background:#fff;border:1px dashed #bbb;padding:10px}
+{% if page == 'client' %}
+<main class="wrap">
+  <section class="hero"><h1>Sa w bezwen an, nou pote l ba ou.</h1><p>Pain, sucre, dlo, manje, gaz propane, taxi, ti komisyon ak plis ankò.</p>{% if member %}<div class="memberBadge">✅ Manm Promo Delivery — {{ member.username }}</div>{% else %}<div class="heroActions"><a class="cta" href="/register">Vin manm</a><a class="cta secondary" href="/login">Konekte</a></div>{% endif %}</section>
 
-/* V15.2 Ads placement & upload fix */
-.adsSection{order:-1;border-top:4px solid var(--yellow);margin-top:14px}
-.adImagePreview{margin:8px 0 12px}
-.adImagePreview img{display:block;max-width:280px;max-height:210px;object-fit:contain;border-radius:14px;border:2px solid var(--yellow);background:#fff;padding:5px}
-.adImagePreview small{display:block;margin-top:6px;color:#666}
-input[type=file]{background:#fff;border:1px dashed #aaa;padding:10px}
+  {% if member %}
+<section class="card" id="myOrders">
+    <div class="sectionHead"><h2>📦 Kòmand mwen yo</h2><button onclick="loadMyOrders()">Rafrechi</button></div>
+    <div id="myOrdersList" class="myOrders"></div>
+  </section>
+  {% else %}
+  <section class="card memberGate"><h2>🔐 Fòk ou manm pou kòmande</h2><p>Kreye username ak modpas ou. Apre sa ou ka pase kòmand epi swiv colis ou dirèkteman nan kont ou.</p><div class="heroActions"><a class="cta" href="/register">Kreye kont</a><a class="cta secondary" href="/login">Mwen deja manm</a></div></section>
+  {% endif %}
+
+  <h2>Kategori</h2><div id="cats" class="cats"></div>
+  <h2>Pwodwi & sèvis</h2><div id="products" class="products"></div>
+
+  {% if member %}
+  <section class="card">
+    <h2>🛒 Panier</h2><div id="cart"></div>
+    <div class="row2">
+      <label>Zòn<select id="zone" onchange="syncFee()"><option value="250">Dexia / Sant vil — 250</option><option value="350">Nan zòn Okay — 350</option><option value="500">Andeyò sant vil — 500</option><option value="0">Pickup — 0</option></select></label>
+      <label>Frè livraison<input id="fee" type="number" value="250" oninput="renderCart()"></label>
+    </div>
+    <div class="total"><span>Total</span><strong id="total">0 Gdes</strong></div>
+  </section>
+
+  <section class="card">
+    <h2>📍 Enfòmasyon livraison</h2>
+    <div class="memberIdentity"><div><small>Manm</small><b>{{ member.full_name }}</b></div><div><small>Telefòn</small><b>{{ member.phone }}</b></div></div>
+    <label>Adrès<textarea id="address" placeholder="Ekri adrès livrezon an"></textarea></label>
+    <label>Referans kote<input id="landmark" placeholder="Eg. bò legliz la"></label>
+
+    <div class="payment-section">
+      <h2>💳 Peman</h2>
+      <div class="payment-buttons">
+        <button type="button" class="pay-btn cash active" onclick="selectPayment('Cash', this)"><span class="cash-icon">💵</span><strong>CASH</strong></button>
+        <button type="button" class="pay-btn moncash" onclick="selectPayment('MonCash', this)"><img src="{{ url_for('static', filename='moncash.png') }}" alt="MonCash"><strong>MONCASH</strong></button>
+        <button type="button" class="pay-btn natcash" onclick="selectPayment('NatCash', this)"><img src="{{ url_for('static', filename='natcash.jpeg') }}" alt="NatCash"><strong>NATCASH</strong></button>
+      </div>
+      <input type="hidden" id="payment" value="Cash">
+      <div id="paymentInfo" class="payment-info">💵 Peman an ap fèt Cash.</div>
+      <div id="transactionBox" class="transaction-box" style="display:none">
+        <div class="row2 paymentProofRow">
+          <label>Nimewo tranzaksyon<input id="transactionId" placeholder="Eg: 123456789"></label>
+          <label>Montan ou peye (Gdes)<input id="paidAmount" type="number" min="1" step="0.01" placeholder="Eg: 975"></label>
+        </div>
+        <small>Obligatwa pou MonCash oswa NatCash. Admin ap verifye nimewo tranzaksyon an ak montan ou deklare ou peye a.</small>
+      </div>
+    </div>
+
+    <label>Nòt<textarea id="note"></textarea></label>
+    <button class="primary" onclick="submitOrder()">VALIDÉ KÒMAND LAN</button>
+    <div id="success"></div>
+  </section>
+  {% endif %}
+
+<div class="adsBottomRight"><section class="card adSection adsSection">
+    <div class="sectionHead"><h2>📣 Piblisite & Anons</h2><small>Paryaj, biznis, bal, spektak ak evènman nan vil la.</small></div>
+    <div id="ads" class="adsGrid"></div>
+  </section></div>
+</main>
+{% endif %}
+
+{% if page == 'admin' %}
+<main class="wrap">
+  <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur, manm, piblisite ak rapò. 🔐 {{ auth_name }}</p></section>
+
+
+  
+
+  {% if member %}
+  
+  <div class="stats"><div><small>Nouvo</small><strong id="sNew">0</strong></div><div><small>Preparasyon</small><strong id="sPrep">0</strong></div><div><small>Sou wout</small><strong id="sRoute">0</strong></div><div><small>Livré</small><strong id="sDone">0</strong></div><div><small>Vant livré</small><strong id="sRevenue">0</strong></div><div class="memberStatMain"><small>👥 Total Manm</small><strong id="sMembers">0</strong></div></div>
+
+  <section class="card opsDashboard">
+    <div class="sectionHead"><div><h2>📊 Rezime Operasyon Jodi a</h2><small>Kòmand, vant ak peman elektwonik konfime</small></div><button onclick="reloadAdmin()">↻ Rafrechi</button></div>
+    <div class="opsGrid">
+      <div><small>Kòmand jodi a</small><strong id="rOrdersToday">0</strong></div>
+      <div><small>Aktif jodi a</small><strong id="rActiveToday">0</strong></div>
+      <div><small>Livré jodi a</small><strong id="rDeliveredToday">0</strong></div>
+      <div><small>Vant livré jodi a</small><strong id="rRevenueToday">0 Gdes</strong></div>
+      <div class="moncashReport"><small>MonCash konfime</small><strong id="rMonCash">0 Gdes</strong><span id="rMonCashCount">0 tranzaksyon</span></div>
+      <div class="natcashReport"><small>NatCash konfime</small><strong id="rNatCash">0 Gdes</strong><span id="rNatCashCount">0 tranzaksyon</span></div>
+    </div>
+  </section>
+
+  
+  <section class="card financePanel">
+    <div class="sectionHead">
+      <div><h2>💰 Dashboard Finans</h2><small>Cash / MonCash / NatCash pa peryòd</small></div>
+      <select id="financePeriod" onchange="loadFinance()"><option value="today">Jodi a</option><option value="week">Semèn sa</option><option value="month">Mwa sa</option></select>
+    </div>
+    <div class="financeGrid">
+      <div class="cashFinance"><small>Cash resevwa</small><strong id="fCash">0 Gdes</strong><span id="fCashCount">0 tranzaksyon</span></div>
+      <div class="moncashFinance"><small>MonCash konfime</small><strong id="fMonCash">0 Gdes</strong><span id="fMonCashCount">0 tranzaksyon</span></div>
+      <div class="natcashFinance"><small>NatCash konfime</small><strong id="fNatCash">0 Gdes</strong><span id="fNatCashCount">0 tranzaksyon</span></div>
+      <div><small>Vant livré</small><strong id="fSales">0 Gdes</strong><span id="fDelivered">0 livré</span></div>
+    </div>
+  </section>
+
+<section class="card dataTools">
+    <div class="sectionHead"><div><h2>🛡️ Sekirite, Rapò & Backup</h2><small>Ekspòte done operasyon yo epi kenbe yon kopi sekirite.</small></div></div>
+    <div class="dataToolButtons">
+      <a class="toolBtn" href="/admin/export/orders.csv">📥 Rapò Kòmand CSV</a>
+      <a class="toolBtn" href="/admin/export/members.csv">👥 Rapò Manm CSV</a>
+      <a class="toolBtn backupBtn" href="/admin/backup.json">💾 Backup JSON</a>
+    </div>
+    <p class="muted">Backup la pa ekspòte modpas manm yo. Sesyon yo limite a 12 èdtan epi paj prive yo pa cache.</p>
+  </section>
+
+  <section class="card memberStatsPanel">
+    <div class="sectionHead"><h2>👥 Manm Promo Delivery</h2><small>Kwasans kominote a</small></div>
+    <div class="memberStatGrid">
+      <div><small>Jodi a</small><strong id="sMembersToday">0</strong></div>
+      <div><small>Semèn sa</small><strong id="sMembersWeek">0</strong></div>
+      <div><small>Mwa sa</small><strong id="sMembersMonth">0</strong></div>
+      <div><small>Total</small><strong id="sMembersTotal2">0</strong></div>
+    </div>
+  </section>
+
+  <section class="card memberManagerPanel">
+    <div class="sectionHead"><div><h2>👥 Jesyon Manm</h2><small>Gade manm yo ak kantite kòmand yo</small></div><input id="memberSearch" placeholder="🔎 Chèche non, username oswa telefòn" oninput="renderMembers()"></div>
+    <div class="tablewrap"><table class="memberTable"><thead><tr><th>Manm</th><th>Username</th><th>Telefòn</th><th>Enskri</th><th>Kòmand</th><th>Livré</th><th>Valè kòmand</th></tr></thead><tbody id="membersList"></tbody></table></div>
+  </section>
+
+  
+  <section class="card">
+    <div class="sectionHead"><div><h2>🛵 Kont Livreur</h2><small>Ajoute, aktive/dezaktive oswa chanje modpas livreur.</small></div></div>
+    <div class="row2"><label>Non livreur<input id="newDriverName" placeholder="Eg. Jeff"></label><label>Modpas tanporè<input id="newDriverPassword" type="password" minlength="6"></label></div>
+    <button onclick="addDriverAccount()">+ Ajoute livreur</button>
+    <div id="driverAccounts" class="driverAccounts"></div>
+  </section>
+
+  <section class="card">
+    <div class="sectionHead"><div><h2>🔑 Demann Mot de passe oublié</h2><small>Admin ka mete yon modpas tanporè pou manm nan.</small></div></div>
+    <div id="passwordResetRequests"></div>
+  </section>
+
+<section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
+
+  <section class="card">
+    <h2>📣 Jesyon Piblisite & Anons</h2><p class="muted">Mete Paryaj Lakay, La Grâce Solutions, gwo bal, spektak oswa lòt anons sou paj kliyan an.</p>
+    <div class="row2"><label>Tit<input id="adTitle" placeholder="Eg. Gwo Bal Samdi"></label><label>Lyen / kontak<input id="adLink" placeholder="https://... oswa tel:"></label></div>
+    <label>Deskripsyon<textarea id="adDescription" placeholder="Ti mesaj piblisite a"></textarea></label>
+    <label>URL imaj / flyer<input id="adImage" placeholder="https://... (opsyonèl)"></label>
+      <label>Upload foto / flyer
+        <input id="adImageFile" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" onchange="previewAdImage(this)">
+        <small class="muted">PNG, JPG oswa JPEG — max 3 MB</small>
+      </label>
+      <div id="adImagePreview" class="adImagePreview"></div>
+      <input id="adImageData" type="hidden">
+    <div class="row2"><label>Kòmanse<input id="adStart" type="date"></label><label>Fini<input id="adEnd" type="date"></label></div>
+    <button onclick="addAd()">Ajoute anons</button>
+    <div id="adManager" class="adManager"></div>
+  </section>
+
+  <section class="card">
+    <h2>🧾 Jesyon pwodwi & pri</h2><p class="muted">Ou ka ajoute nouvo pwodwi oswa modifye non ak pri pwodwi ki deja la.</p>
+    <div class="row2"><label>Non<input id="pname"></label><label>Pri<input id="pprice" type="number"></label></div>
+    <div class="row2"><label>Kategori<select id="pcat"><option value="pain">Pain</option><option value="sucre">Sucre</option><option value="eau">Dlo</option><option value="food">Manje</option><option value="gas">Gaz</option><option value="taxi">Taxi</option><option value="other">Autres</option></select></label><label>Icon<input id="picon" placeholder="🥤"></label></div>
+    <button onclick="addProduct()">Ajoute</button><div id="productManager"></div>
+  </section>
+
+  <section class="card orderManagerPanel">
+    <div class="sectionHead"><div><h2>📦 Kòmand yo</h2><small>Chèche epi filtre operasyon yo.</small></div></div>
+    <div class="orderFilters">
+      <input id="orderSearch" placeholder="🔎 Kòd, kliyan, telefòn..." oninput="renderOrders()">
+      <select id="orderStatusFilter" onchange="renderOrders()"><option value="">Tout estati</option><option>Nouveau</option><option>Préparation</option><option>En route</option><option>Livré</option><option>Annulé</option></select>
+      <select id="orderPaymentFilter" onchange="renderOrders()"><option value="">Tout peman</option><option>Cash</option><option>MonCash</option><option>NatCash</option></select>
+      <select id="orderDriverFilter" onchange="renderOrders()"><option value="">Tout livreur</option></select>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total / Peman</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
+</main>
+{% endif %}
+
+{% if page == 'driver' %}
+<main class="wrap">
+  <section class="hero driverHero">
+    <h1>🛵 Dashboard Livreur</h1>
+    <p>Byenvini <b>{{ auth_name }}</b>. Ou wè sèlman kòmand Admin asiyen avè w.</p>
+    <div class="driverMiniStats">
+      <div><small>Kòmand aktif</small><strong id="dActive">0</strong></div>
+      <div><small>Livrezon fini</small><strong id="dDelivered">0</strong></div>
+      <div><small>Total livré</small><strong id="dDeliveredTotal">0 Gdes</strong></div><div><small>Cash resevwa</small><strong id="dCashCollected">0 Gdes</strong></div>
+    </div>
+  </section>
+  <div class="driverToolbar"><h2>Kòmand mwen</h2><button onclick="loadDriver()">↻ Rafrechi</button></div>
+  <div id="driverOrders" class="driverGrid"></div>
+</main>
+{% endif %}
+
+<div id="toast" class="toast"></div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
