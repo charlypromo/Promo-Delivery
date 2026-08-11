@@ -91,6 +91,36 @@ class User(db.Model):
         return {"id": self.id, "full_name": self.full_name, "phone": self.phone, "username": self.username}
 
 
+class DriverAccount(db.Model):
+    __tablename__ = "driver_accounts"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+    active = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def as_dict(self):
+        return {"id": self.id, "name": self.name, "active": bool(self.active),
+                "created_at": self.created_at.isoformat(timespec="seconds") if self.created_at else ""}
+
+
+class PasswordResetRequest(db.Model):
+    __tablename__ = "password_reset_requests"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False, index=True)
+    username = db.Column(db.String(80), nullable=False)
+    phone = db.Column(db.String(60), nullable=False)
+    status = db.Column(db.String(30), default="En attente", nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+
+    def as_dict(self):
+        return {"id": self.id, "user_id": self.user_id, "username": self.username,
+                "phone": self.phone, "status": self.status,
+                "created_at": self.created_at.isoformat(timespec="seconds") if self.created_at else "",
+                "resolved_at": self.resolved_at.isoformat(timespec="seconds") if self.resolved_at else ""}
+
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
@@ -186,6 +216,19 @@ def seed_products():
     db.session.commit()
 
 
+
+def seed_driver_accounts():
+    if DriverAccount.query.count():
+        return
+    for name, password in DRIVER_PASSWORDS.items():
+        if password:
+            db.session.add(DriverAccount(
+                name=name,
+                password_hash=generate_password_hash(password),
+                active=True
+            ))
+    db.session.commit()
+
 def seed_ads():
     if Ad.query.count():
         return
@@ -243,6 +286,27 @@ def register():
     return render_template("index.html", page="register", error=error)
 
 
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    message = ""
+    error = ""
+    if request.method == "POST":
+        username = request.form.get("username", "").strip().lower()
+        phone = request.form.get("phone", "").strip()
+        user = User.query.filter(db.func.lower(User.username) == username).first()
+        if not user or user.phone.strip() != phone:
+            error = "Nou pa jwenn yon manm ak username ak telefòn sa yo."
+        else:
+            existing = PasswordResetRequest.query.filter_by(user_id=user.id, status="En attente").first()
+            if not existing:
+                db.session.add(PasswordResetRequest(
+                    user_id=user.id, username=user.username, phone=user.phone, status="En attente"
+                ))
+                db.session.commit()
+            message = "Demann reset modpas la voye bay Admin. Promo Delivery ap kontakte ou."
+    return render_template("index.html", page="forgot", error=error, success=message)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = ""
@@ -258,9 +322,14 @@ def login():
         elif role == "admin" and hmac.compare_digest(username, ADMIN_USER) and hmac.compare_digest(password, ADMIN_PASSWORD):
             session.clear(); session["role"] = "admin"; session["name"] = "Admin"; session.permanent = True
             return redirect("/admin")
-        elif role == "driver" and username in DRIVER_PASSWORDS and hmac.compare_digest(password, DRIVER_PASSWORDS[username]):
-            session.clear(); session["role"] = "driver"; session["driver"] = username; session["name"] = username; session.permanent = True
-            return redirect("/driver")
+        elif role == "driver":
+            driver_account = DriverAccount.query.filter(
+                db.func.lower(DriverAccount.name) == username.lower(),
+                DriverAccount.active.is_(True)
+            ).first()
+            if driver_account and check_password_hash(driver_account.password_hash, password):
+                session.clear(); session["role"] = "driver"; session["driver"] = driver_account.name; session["name"] = driver_account.name; session.permanent = True
+                return redirect("/driver")
         error = "Non itilizatè oswa modpas pa kòrèk."
     return render_template("index.html", page="login", error=error)
 
@@ -321,7 +390,7 @@ def driver():
 
 @app.route("/health")
 def health():
-    return {"ok": True, "service": "Promo Delivery V14"}
+    return {"ok": True, "service": "Promo Delivery V15"}
 
 
 @app.get("/api/me")
@@ -534,6 +603,71 @@ def patch_order(oid):
     return jsonify({"ok": True})
 
 
+@app.get("/api/admin/drivers")
+@admin_required
+def admin_drivers():
+    return jsonify([d.as_dict() for d in DriverAccount.query.order_by(DriverAccount.name.asc()).all()])
+
+
+@app.post("/api/admin/drivers")
+@admin_required
+def admin_add_driver():
+    d = request.get_json(silent=True) or {}
+    name = str(d.get("name", "")).strip()
+    password = str(d.get("password", ""))
+    if not name or len(password) < 6:
+        return jsonify({"error": "name_and_password_required"}), 400
+    if DriverAccount.query.filter(db.func.lower(DriverAccount.name) == name.lower()).first():
+        return jsonify({"error": "driver_exists"}), 400
+    row = DriverAccount(name=name, password_hash=generate_password_hash(password), active=True)
+    db.session.add(row); db.session.commit()
+    return jsonify({"ok": True, "driver": row.as_dict()})
+
+
+@app.patch("/api/admin/drivers/<int:driver_id>")
+@admin_required
+def admin_edit_driver(driver_id):
+    row = db.session.get(DriverAccount, driver_id)
+    if not row:
+        return jsonify({"error": "not_found"}), 404
+    d = request.get_json(silent=True) or {}
+    if "active" in d:
+        row.active = bool(d.get("active"))
+    if "password" in d and str(d.get("password", "")):
+        password = str(d.get("password"))
+        if len(password) < 6:
+            return jsonify({"error": "password_too_short"}), 400
+        row.password_hash = generate_password_hash(password)
+    db.session.commit()
+    return jsonify({"ok": True, "driver": row.as_dict()})
+
+
+@app.get("/api/admin/password-resets")
+@admin_required
+def admin_password_resets():
+    return jsonify([r.as_dict() for r in PasswordResetRequest.query.order_by(PasswordResetRequest.id.desc()).all()])
+
+
+@app.post("/api/admin/password-resets/<int:request_id>/resolve")
+@admin_required
+def admin_resolve_password_reset(request_id):
+    req = db.session.get(PasswordResetRequest, request_id)
+    if not req:
+        return jsonify({"error": "not_found"}), 404
+    d = request.get_json(silent=True) or {}
+    password = str(d.get("password", ""))
+    if len(password) < 8:
+        return jsonify({"error": "password_too_short"}), 400
+    user = db.session.get(User, req.user_id)
+    if not user:
+        return jsonify({"error": "member_not_found"}), 404
+    user.password_hash = generate_password_hash(password)
+    req.status = "Résolu"
+    req.resolved_at = datetime.utcnow()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
 @app.get("/api/driver/orders")
 @driver_required
 def driver_orders():
@@ -571,6 +705,43 @@ def members():
             "orders_total": float(sum(float(o.total or 0) for o in user_orders)),
         })
     return jsonify(result)
+
+
+@app.get("/api/admin/finance")
+@admin_required
+def admin_finance():
+    period = request.args.get("period", "today")
+    now = datetime.utcnow()
+    today_start = datetime(now.year, now.month, now.day)
+    if period == "week":
+        start = today_start.fromordinal(today_start.toordinal() - today_start.weekday())
+    elif period == "month":
+        start = datetime(now.year, now.month, 1)
+    else:
+        period = "today"
+        start = today_start
+
+    rows = Order.query.filter(Order.created_at >= start).all()
+
+    def total_for(method):
+        method_rows = [o for o in rows if o.payment == method and o.status != "Annulé"]
+        if method == "Cash":
+            amount = sum(float(o.cash_received or 0) for o in method_rows)
+        else:
+            method_rows = [o for o in method_rows if o.payment_status == "Konfime"]
+            amount = sum(float(o.paid_amount or 0) for o in method_rows)
+        return {"count": len(method_rows), "amount": float(amount)}
+
+    delivered = [o for o in rows if o.status == "Livré"]
+    return jsonify({
+        "period": period,
+        "cash": total_for("Cash"),
+        "moncash": total_for("MonCash"),
+        "natcash": total_for("NatCash"),
+        "orders_count": len([o for o in rows if o.status != "Annulé"]),
+        "delivered_count": len(delivered),
+        "sales_total": float(sum(float(o.total or 0) for o in delivered))
+    })
 
 
 @app.get("/api/admin/summary")
@@ -626,7 +797,7 @@ def export_members_csv():
 @admin_required
 def admin_backup():
     payload = {
-        "version": "Promo Delivery V14",
+        "version": "Promo Delivery V15",
         "generated_at": datetime.utcnow().isoformat(timespec="seconds"),
         "members": [{
             "id": u.id, "full_name": u.full_name, "phone": u.phone, "username": u.username,
@@ -637,7 +808,7 @@ def admin_backup():
         "orders": [o.as_dict() for o in Order.query.order_by(Order.id).all()]
     }
     data = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
-    return Response(data, mimetype="application/json", headers={"Content-Disposition": "attachment; filename=promo_delivery_backup_v13.json"})
+    return Response(data, mimetype="application/json", headers={"Content-Disposition": "attachment; filename=promo_delivery_backup_v15.json"})
 
 
 @app.get("/api/stats")
@@ -705,47 +876,35 @@ def driver_me_stats():
 @admin_required
 def driver_stats():
     result = []
-    for driver in DRIVER_PASSWORDS.keys():
+    for driver in [d.name for d in DriverAccount.query.filter_by(active=True).order_by(DriverAccount.name.asc()).all()]:
         rows = Order.query.filter_by(driver=driver, status="Livré").all()
         result.append({"driver": driver, "count": len(rows), "total": sum(float(o.total or 0) for o in rows)})
     return jsonify(result)
 
 
 def ensure_order_columns():
+    """Add missing Order columns without dropping existing data."""
     inspector = inspect(db.engine)
     if not inspector.has_table("orders"):
-        db.create_all(); inspector = inspect(db.engine)
-
-        # V14 delivery-control columns (safe for existing databases)
-        try:
-            cols = {row[1] for row in db.session.execute(db.text("PRAGMA table_info(orders)")).fetchall()}
-            if cols:
-                if "cash_received" not in cols:
-                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN cash_received FLOAT DEFAULT 0"))
-                if "accepted_at" not in cols:
-                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN accepted_at DATETIME"))
-                if "en_route_at" not in cols:
-                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN en_route_at DATETIME"))
-                if "delivered_at" not in cols:
-                    db.session.execute(db.text("ALTER TABLE orders ADD COLUMN delivered_at DATETIME"))
-                db.session.commit()
-        except Exception:
-            db.session.rollback()
-        if not inspector.has_table("orders"):
-            return
+        db.create_all()
+        inspector = inspect(db.engine)
     cols = {c["name"] for c in inspector.get_columns("orders")}
-    statements = []
-    if "transaction_id" not in cols:
-        statements.append("ALTER TABLE orders ADD COLUMN transaction_id VARCHAR(120) DEFAULT ''")
-    if "payment_status" not in cols:
-        statements.append("ALTER TABLE orders ADD COLUMN payment_status VARCHAR(50) DEFAULT 'Cash'")
-    if "paid_amount" not in cols:
-        statements.append("ALTER TABLE orders ADD COLUMN paid_amount FLOAT DEFAULT 0")
-    if "customer_id" not in cols:
-        statements.append("ALTER TABLE orders ADD COLUMN customer_id INTEGER")
-    for statement in statements:
-        db.session.execute(text(statement))
-    if statements:
+    wanted = {
+        "customer_id": "INTEGER",
+        "transaction_id": "VARCHAR(120) DEFAULT ''",
+        "paid_amount": "FLOAT DEFAULT 0",
+        "payment_status": "VARCHAR(50) DEFAULT 'Cash'",
+        "cash_received": "FLOAT DEFAULT 0",
+        "accepted_at": "TIMESTAMP",
+        "en_route_at": "TIMESTAMP",
+        "delivered_at": "TIMESTAMP",
+    }
+    changed = False
+    for name, sql_type in wanted.items():
+        if name not in cols:
+            db.session.execute(text(f"ALTER TABLE orders ADD COLUMN {name} {sql_type}"))
+            changed = True
+    if changed:
         db.session.commit()
 
 
@@ -754,6 +913,7 @@ with app.app_context():
     ensure_order_columns()
     seed_products()
     seed_ads()
+    seed_driver_accounts()
 
 
 if __name__ == "__main__":

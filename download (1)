@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promo Delivery V14</title>
+<title>Promo Delivery V15</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
@@ -48,7 +48,24 @@
       <label>Username / Non itilizatè<input name="username" id="loginUser" autocomplete="username" placeholder="username" required></label>
       <label>Modpas<input name="password" type="password" autocomplete="current-password" required></label>
       <button class="primary" type="submit">KONEKTE</button>
-      <p class="muted center">Ou poko manm? <a href="/register">Enskri gratis</a>.</p>
+      <p class="muted center">Ou poko manm? <a href="/register">Enskri gratis</a> · <a href="/forgot-password">Mot de passe oublié?</a></p>
+    </form>
+  </section>
+</main>
+{% endif %}
+
+
+{% if page == 'forgot' %}
+<main class="wrap loginWrap">
+  <section class="hero"><h1>🔑 Mot de passe oublié</h1><p>Voye yon demann reset bay Admin Promo Delivery.</p></section>
+  <section class="card loginCard">
+    {% if error %}<div class="loginError">{{ error }}</div>{% endif %}
+    {% if success %}<div class="profileSuccess">✅ {{ success }}</div>{% endif %}
+    <form method="post" action="/forgot-password">
+      <label>Username<input name="username" autocomplete="username" required></label>
+      <label>Telefòn ki sou kont lan<input name="phone" required></label>
+      <button class="primary" type="submit">VOYE DEMANN RESET</button>
+      <p class="muted center"><a href="/login">← Retounen konekte</a></p>
     </form>
   </section>
 </main>
@@ -165,7 +182,21 @@
     </div>
   </section>
 
-  <section class="card dataTools">
+  
+  <section class="card financePanel">
+    <div class="sectionHead">
+      <div><h2>💰 Dashboard Finans</h2><small>Cash / MonCash / NatCash pa peryòd</small></div>
+      <select id="financePeriod" onchange="loadFinance()"><option value="today">Jodi a</option><option value="week">Semèn sa</option><option value="month">Mwa sa</option></select>
+    </div>
+    <div class="financeGrid">
+      <div class="cashFinance"><small>Cash resevwa</small><strong id="fCash">0 Gdes</strong><span id="fCashCount">0 tranzaksyon</span></div>
+      <div class="moncashFinance"><small>MonCash konfime</small><strong id="fMonCash">0 Gdes</strong><span id="fMonCashCount">0 tranzaksyon</span></div>
+      <div class="natcashFinance"><small>NatCash konfime</small><strong id="fNatCash">0 Gdes</strong><span id="fNatCashCount">0 tranzaksyon</span></div>
+      <div><small>Vant livré</small><strong id="fSales">0 Gdes</strong><span id="fDelivered">0 livré</span></div>
+    </div>
+  </section>
+
+<section class="card dataTools">
     <div class="sectionHead"><div><h2>🛡️ Sekirite, Rapò & Backup</h2><small>Ekspòte done operasyon yo epi kenbe yon kopi sekirite.</small></div></div>
     <div class="dataToolButtons">
       <a class="toolBtn" href="/admin/export/orders.csv">📥 Rapò Kòmand CSV</a>
@@ -190,7 +221,20 @@
     <div class="tablewrap"><table class="memberTable"><thead><tr><th>Manm</th><th>Username</th><th>Telefòn</th><th>Enskri</th><th>Kòmand</th><th>Livré</th><th>Valè kòmand</th></tr></thead><tbody id="membersList"></tbody></table></div>
   </section>
 
-  <section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
+  
+  <section class="card">
+    <div class="sectionHead"><div><h2>🛵 Kont Livreur</h2><small>Ajoute, aktive/dezaktive oswa chanje modpas livreur.</small></div></div>
+    <div class="row2"><label>Non livreur<input id="newDriverName" placeholder="Eg. Jeff"></label><label>Modpas tanporè<input id="newDriverPassword" type="password" minlength="6"></label></div>
+    <button onclick="addDriverAccount()">+ Ajoute livreur</button>
+    <div id="driverAccounts" class="driverAccounts"></div>
+  </section>
+
+  <section class="card">
+    <div class="sectionHead"><div><h2>🔑 Demann Mot de passe oublié</h2><small>Admin ka mete yon modpas tanporè pou manm nan.</small></div></div>
+    <div id="passwordResetRequests"></div>
+  </section>
+
+<section class="card"><h2>🚚 Estatistik livreur yo</h2><div id="driverStats"></div></section>
 
   <section class="card">
     <h2>📣 Jesyon Piblisite & Anons</h2><p class="muted">Mete Paryaj Lakay, La Grâce Solutions, gwo bal, spektak oswa lòt anons sou paj kliyan an.</p>
@@ -209,7 +253,15 @@
     <button onclick="addProduct()">Ajoute</button><div id="productManager"></div>
   </section>
 
-  <section class="card"><h2>📦 Kòmand yo</h2><div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total / Peman</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
+  <section class="card orderManagerPanel">
+    <div class="sectionHead"><div><h2>📦 Kòmand yo</h2><small>Chèche epi filtre operasyon yo.</small></div></div>
+    <div class="orderFilters">
+      <input id="orderSearch" placeholder="🔎 Kòd, kliyan, telefòn..." oninput="renderOrders()">
+      <select id="orderStatusFilter" onchange="renderOrders()"><option value="">Tout estati</option><option>Nouveau</option><option>Préparation</option><option>En route</option><option>Livré</option><option>Annulé</option></select>
+      <select id="orderPaymentFilter" onchange="renderOrders()"><option value="">Tout peman</option><option>Cash</option><option>MonCash</option><option>NatCash</option></select>
+      <select id="orderDriverFilter" onchange="renderOrders()"><option value="">Tout livreur</option></select>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>#</th><th>Kliyan</th><th>Atik</th><th>Total / Peman</th><th>Adrès</th><th>Estati</th><th>Livreur</th><th>Aksyon</th></tr></thead><tbody id="orders"></tbody></table></div></section>
 </main>
 {% endif %}
 
