@@ -1,11 +1,7 @@
-PROMO DELIVERY V15 — PROFESSIONAL
-- Tout fonksyon V14 yo konsève
-- Mot de passe oublié ak demann reset pou Admin
-- Admin ka bay modpas tanporè pou manm
-- Jesyon kont livreur nan Admin
-- Ajoute / aktive / dezaktive / chanje modpas livreur
-- Dropdown livreur dinamik
-- Recherche ak filtè kòmand
-- Dashboard Finans Cash / MonCash / NatCash: jodi a / semèn / mwa
-- Mobile polish
-- Migration bazdone SQLite/PostgreSQL pi solid
+PROMO DELIVERY V15.1 — ADS PHOTO UPLOAD
+- Admin ka upload flyer dirèkteman nan Jesyon Piblisite & Anons
+- Fòma: PNG, JPG, JPEG
+- Maksimòm: 3 MB
+- Foto a estoke nan bazdone a kòm image data, kidonk li pa depann de filesystem Render
+- URL imaj la rete disponib kòm opsyon
+- Tout fonksyon V15 yo konsève

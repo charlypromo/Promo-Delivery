@@ -146,31 +146,25 @@ async function uploadAdImageFile(){
   return data.image_data||'';
 }
 async function addAd(){
-  const title=document.getElementById('adTitle').value.trim();
+  const title=document.getElementById('adTitle')?.value.trim();
   if(!title)return alert('Mete tit anons lan.');
   let image_data='';
   try{image_data=await uploadAdImageFile()}catch(e){return alert(e.message)}
   const body={
     title,
-    description:document.getElementById('adDescription').value.trim(),
-    link:document.getElementById('adLink').value.trim(),
-    image_url:document.getElementById('adImage').value.trim(),
+    description:document.getElementById('adDescription')?.value.trim()||'',
+    link:document.getElementById('adLink')?.value.trim()||'',
+    image_url:document.getElementById('adImage')?.value.trim()||'',
     image_data,
-    start_date:document.getElementById('adStart').value||'',
-    end_date:document.getElementById('adEnd').value||''
+    start_date:document.getElementById('adStart')?.value||'',
+    end_date:document.getElementById('adEnd')?.value||''
   };
   await api('/api/admin/ads',{method:'POST',body:JSON.stringify(body)});
-  document.getElementById('adTitle').value='';
-  document.getElementById('adDescription').value='';
-  document.getElementById('adLink').value='';
-  document.getElementById('adImage').value='';
-  document.getElementById('adStart').value='';
-  document.getElementById('adEnd').value='';
+  ['adTitle','adDescription','adLink','adImage','adStart','adEnd'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
   const fi=document.getElementById('adImageFile');if(fi)fi.value='';
   const pv=document.getElementById('adImagePreview');if(pv)pv.innerHTML='';
   toast('Anons ajoute');await reloadAdmin();
 }
-
 async function toggleAd(id,active){await api('/api/admin/ads/'+id,{method:'PATCH',body:JSON.stringify({active})});await reloadAdmin()}
 async function removeAd(id){if(confirm('Efase anons sa?')){await api('/api/admin/ads/'+id,{method:'DELETE'});await reloadAdmin()}}
 

@@ -105,14 +105,7 @@
 {% if page == 'client' %}
 <main class="wrap">
   <section class="hero"><h1>Sa w bezwen an, nou pote l ba ou.</h1><p>Pain, sucre, dlo, manje, gaz propane, taxi, ti komisyon ak plis ankò.</p>{% if member %}<div class="memberBadge">✅ Manm Promo Delivery — {{ member.username }}</div>{% else %}<div class="heroActions"><a class="cta" href="/register">Vin manm</a><a class="cta secondary" href="/login">Konekte</a></div>{% endif %}</section>
-
-  <section class="card adSection">
-    <div class="sectionHead"><h2>📣 Piblisite & Anons</h2><small>Paryaj, biznis, bal, spektak ak evènman nan vil la.</small></div>
-    <div id="ads" class="adsGrid"></div>
-  </section>
-
-  {% if member %}
-  <section class="card" id="myOrders">
+<section class="card" id="myOrders">
     <div class="sectionHead"><h2>📦 Kòmand mwen yo</h2><button onclick="loadMyOrders()">Rafrechi</button></div>
     <div id="myOrdersList" class="myOrders"></div>
   </section>
@@ -168,6 +161,15 @@
 {% if page == 'admin' %}
 <main class="wrap">
   <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur, manm, piblisite ak rapò. 🔐 {{ auth_name }}</p></section>
+
+
+  <section class="card adSection">
+    <div class="sectionHead"><h2>📣 Piblisite & Anons</h2><small>Paryaj, biznis, bal, spektak ak evènman nan vil la.</small></div>
+    <div id="ads" class="adsGrid"></div>
+  </section>
+
+  {% if member %}
+  
   <div class="stats"><div><small>Nouvo</small><strong id="sNew">0</strong></div><div><small>Preparasyon</small><strong id="sPrep">0</strong></div><div><small>Sou wout</small><strong id="sRoute">0</strong></div><div><small>Livré</small><strong id="sDone">0</strong></div><div><small>Vant livré</small><strong id="sRevenue">0</strong></div><div class="memberStatMain"><small>👥 Total Manm</small><strong id="sMembers">0</strong></div></div>
 
   <section class="card opsDashboard">

@@ -1,0 +1,11 @@
+PROMO DELIVERY V15 — PROFESSIONAL
+- Tout fonksyon V14 yo konsève
+- Mot de passe oublié ak demann reset pou Admin
+- Admin ka bay modpas tanporè pou manm
+- Jesyon kont livreur nan Admin
+- Ajoute / aktive / dezaktive / chanje modpas livreur
+- Dropdown livreur dinamik
+- Recherche ak filtè kòmand
+- Dashboard Finans Cash / MonCash / NatCash: jodi a / semèn / mwa
+- Mobile polish
+- Migration bazdone SQLite/PostgreSQL pi solid
