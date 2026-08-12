@@ -106,25 +106,19 @@
   .hero{padding:20px}
 }
 
-/* Ads direct photo upload */
-.adImagePreview{margin:8px 0 12px}
-.adImagePreview img{display:block;max-width:240px;max-height:180px;object-fit:contain;border-radius:14px;border:2px solid var(--yellow);background:#fff;padding:5px}
-.adImagePreview small{display:block;margin-top:5px;color:#666}
-input[type=file]{background:#fff;border:1px dashed #bbb;padding:10px}
-
-/* V15.2 Ads placement & upload fix */
-.adsSection{order:-1;border-top:4px solid var(--yellow);margin-top:14px}
-.adImagePreview{margin:8px 0 12px}
-.adImagePreview img{display:block;max-width:280px;max-height:210px;object-fit:contain;border-radius:14px;border:2px solid var(--yellow);background:#fff;padding:5px}
-.adImagePreview small{display:block;margin-top:6px;color:#666}
-input[type=file]{background:#fff;border:1px dashed #aaa;padding:10px}
-
-/* V15.3 - Piblisite adwat + anba */
-.adsBottomRight{display:flex;justify-content:flex-end;width:100%;margin-top:30px;margin-bottom:18px}
-.adsBottomRight .adsSection{width:min(520px,100%);border-top:4px solid var(--yellow);border-right:5px solid var(--red)}
-.adsBottomRight .adsSection img{max-width:100%;height:auto;border-radius:14px}
+/* Promo Delivery V15.4 — piblisite anba/adwat + upload foto */
+.adsBottomRight{
+  width:min(520px,100%);
+  margin:34px 0 18px auto;
+  border-top:4px solid var(--yellow);
+  border-right:5px solid var(--red);
+}
+.adsBottomRight .adsGrid{grid-template-columns:1fr}
+.adsBottomRight .adCard img{height:auto;max-height:360px;object-fit:contain;background:#fafafa}
 .adImagePreview{margin:8px 0 12px}
 .adImagePreview img{display:block;max-width:300px;max-height:220px;object-fit:contain;border-radius:14px;border:2px solid var(--yellow);background:#fff;padding:5px}
 .adImagePreview small{display:block;margin-top:6px;color:#666}
 input[type=file]{background:#fff;border:1px dashed #aaa;padding:10px}
-@media(max-width:760px){.adsBottomRight{justify-content:stretch}.adsBottomRight .adsSection{width:100%}}
+@media(max-width:760px){
+  .adsBottomRight{width:100%;margin-left:0}
+}

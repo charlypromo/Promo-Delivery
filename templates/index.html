@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promo Delivery V15</title>
+<title>Promo Delivery V15.4</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-page="{{ page }}" data-member="{{ '1' if member else '0' }}">
@@ -105,7 +105,9 @@
 {% if page == 'client' %}
 <main class="wrap">
   <section class="hero"><h1>Sa w bezwen an, nou pote l ba ou.</h1><p>Pain, sucre, dlo, manje, gaz propane, taxi, ti komisyon ak plis ankò.</p>{% if member %}<div class="memberBadge">✅ Manm Promo Delivery — {{ member.username }}</div>{% else %}<div class="heroActions"><a class="cta" href="/register">Vin manm</a><a class="cta secondary" href="/login">Konekte</a></div>{% endif %}</section>
-<section class="card" id="myOrders">
+
+  {% if member %}
+  <section class="card" id="myOrders">
     <div class="sectionHead"><h2>📦 Kòmand mwen yo</h2><button onclick="loadMyOrders()">Rafrechi</button></div>
     <div id="myOrdersList" class="myOrders"></div>
   </section>
@@ -156,22 +158,16 @@
   </section>
   {% endif %}
 
-<div class="adsBottomRight"><section class="card adSection">
+  <section class="card adSection adsBottomRight">
     <div class="sectionHead"><h2>📣 Piblisite & Anons</h2><small>Paryaj, biznis, bal, spektak ak evènman nan vil la.</small></div>
     <div id="ads" class="adsGrid"></div>
-  </section></div>
+  </section>
 </main>
 {% endif %}
 
 {% if page == 'admin' %}
 <main class="wrap">
   <section class="hero"><h1>Admin Promo Delivery</h1><p>Jere kòmand, pwodwi, livreur, manm, piblisite ak rapò. 🔐 {{ auth_name }}</p></section>
-
-
-  
-
-  {% if member %}
-  
   <div class="stats"><div><small>Nouvo</small><strong id="sNew">0</strong></div><div><small>Preparasyon</small><strong id="sPrep">0</strong></div><div><small>Sou wout</small><strong id="sRoute">0</strong></div><div><small>Livré</small><strong id="sDone">0</strong></div><div><small>Vant livré</small><strong id="sRevenue">0</strong></div><div class="memberStatMain"><small>👥 Total Manm</small><strong id="sMembers">0</strong></div></div>
 
   <section class="card opsDashboard">
@@ -245,12 +241,11 @@
     <div class="row2"><label>Tit<input id="adTitle" placeholder="Eg. Gwo Bal Samdi"></label><label>Lyen / kontak<input id="adLink" placeholder="https://... oswa tel:"></label></div>
     <label>Deskripsyon<textarea id="adDescription" placeholder="Ti mesaj piblisite a"></textarea></label>
     <label>URL imaj / flyer<input id="adImage" placeholder="https://... (opsyonèl)"></label>
-      <label>Upload foto / flyer
-        <input id="adImageFile" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" onchange="previewAdImage(this)">
-        <small class="muted">PNG, JPG oswa JPEG — max 3 MB</small>
-      </label>
-      <div id="adImagePreview" class="adImagePreview"></div>
-      <input id="adImageData" type="hidden">
+    <label>Upload foto / flyer
+      <input id="adImageFile" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onchange="previewAdImage(this)">
+      <small class="muted">JPG, JPEG oswa PNG — max 4 MB</small>
+    </label>
+    <div id="adImagePreview" class="adImagePreview"></div>
     <div class="row2"><label>Kòmanse<input id="adStart" type="date"></label><label>Fini<input id="adEnd" type="date"></label></div>
     <button onclick="addAd()">Ajoute anons</button>
     <div id="adManager" class="adManager"></div>

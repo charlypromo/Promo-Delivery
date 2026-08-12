@@ -3,9 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text
 from datetime import datetime, date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
-import base64
-import mimetypes, json, hmac, csv, io
+import os, json, hmac, csv, io
 from functools import wraps
 
 app = Flask(__name__)
@@ -198,7 +196,8 @@ class Ad(db.Model):
     def as_dict(self):
         return {
             "id": self.id, "title": self.title, "description": self.description or "",
-            "image_url": self.image_url or "", "target_url": self.target_url or "",
+            "image_url": self.image_url or "", "image_data": self.image_data or "",
+            "image_src": (self.image_data or self.image_url or ""), "target_url": self.target_url or "",
             "active": bool(self.active),
             "starts_at": self.starts_at.isoformat() if self.starts_at else "",
             "ends_at": self.ends_at.isoformat() if self.ends_at else ""
@@ -239,7 +238,7 @@ def seed_ads():
     db.session.add(Ad(
         title="📣 Espas Piblisite Promo Delivery",
         description="Admin ka mete Paryaj Lakay, La Grâce Solutions, gwo bal, spektak ak lòt anons isit la.",
-        image_url="", target_url="", image_data="", active=True
+        image_url="", image_data="", target_url="", active=True
     ))
     db.session.commit()
 
@@ -394,7 +393,7 @@ def driver():
 
 @app.route("/health")
 def health():
-    return {"ok": True, "service": "Promo Delivery V15"}
+    return {"ok": True, "service": "Promo Delivery V15.4"}
 
 
 @app.get("/api/me")
@@ -462,27 +461,6 @@ def public_ads():
     return jsonify([a.as_dict() for a in rows])
 
 
-
-@app.post("/api/admin/ad-image")
-@admin_required
-def admin_upload_ad_image():
-    if "image" not in request.files:
-        return jsonify({"error": "missing_image"}), 400
-    f = request.files["image"]
-    if not f or not f.filename:
-        return jsonify({"error": "missing_image"}), 400
-    ext = os.path.splitext(f.filename.lower())[1]
-    allowed = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
-    if ext not in allowed:
-        return jsonify({"error": "invalid_type", "message": "PNG, JPG oswa JPEG sèlman."}), 400
-    raw = f.read()
-    if len(raw) > 3 * 1024 * 1024:
-        return jsonify({"error": "too_large", "message": "Foto a dwe pi piti pase 3 MB."}), 400
-    encoded = base64.b64encode(raw).decode("ascii")
-    data_uri = f"data:{allowed[ext]};base64,{encoded}"
-    return jsonify({"ok": True, "image_data": data_uri, "filename": f.filename})
-
-
 @app.get("/api/admin/ads")
 @admin_required
 def admin_ads():
@@ -500,8 +478,7 @@ def add_ad():
         try: return datetime.strptime(v, "%Y-%m-%d").date() if v else None
         except ValueError: return None
     ad = Ad(title=title, description=str(d.get("description", "")).strip(),
-            image_url=str(d.get("image_url", "")).strip(),
-        image_data=str(d.get("image_data", "")).strip(), target_url=str(d.get("target_url", "")).strip(),
+            image_url=str(d.get("image_url", "")).strip(), image_data=str(d.get("image_data", "")).strip(), target_url=str(d.get("target_url", "")).strip(),
             active=bool(d.get("active", True)), starts_at=parse_date(str(d.get("starts_at", ""))),
             ends_at=parse_date(str(d.get("ends_at", ""))))
     db.session.add(ad); db.session.commit()
@@ -519,6 +496,7 @@ def edit_ad(aid):
     if "title" in d and str(d.get("title", "")).strip(): ad.title = str(d.get("title")).strip()
     if "description" in d: ad.description = str(d.get("description", "")).strip()
     if "image_url" in d: ad.image_url = str(d.get("image_url", "")).strip()
+    if "image_data" in d: ad.image_data = str(d.get("image_data", "")).strip()
     if "target_url" in d: ad.target_url = str(d.get("target_url", "")).strip()
     db.session.commit()
     return jsonify({"ok": True})
@@ -823,7 +801,7 @@ def export_members_csv():
 @admin_required
 def admin_backup():
     payload = {
-        "version": "Promo Delivery V15",
+        "version": "Promo Delivery V15.4",
         "generated_at": datetime.utcnow().isoformat(timespec="seconds"),
         "members": [{
             "id": u.id, "full_name": u.full_name, "phone": u.phone, "username": u.username,

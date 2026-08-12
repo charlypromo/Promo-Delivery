@@ -29,7 +29,7 @@ async function initClient(){
 }
 function renderAds(){
   const el=document.getElementById('ads');if(!el)return;
-  el.innerHTML=ads.length?ads.map(a=>`<article class="adCard">${(a.image_src||a.image_data||a.image_url)?`<img src="${a.image_src||a.image_data||esc(a.image_url)}" alt="${esc(a.title)}" onerror="this.style.display='none'">`:'<div class="adPlaceholder">📣</div>'}<div class="adBody"><h3>${esc(a.title)}</h3><p>${esc(a.description)}</p>${a.target_url?`<a href="${esc(a.target_url)}" target="_blank" rel="noopener">Wè plis →</a>`:''}</div></article>`).join(''):'<div class="muted">Pa gen anons aktif kounye a.</div>';
+  el.innerHTML=ads.length?ads.map(a=>{const img=a.image_src||a.image_data||a.image_url||'';return `<article class="adCard">${img?`<img src="${img.startsWith('data:')?img:esc(img)}" alt="${esc(a.title)}" onerror="this.style.display='none'">`:'<div class="adPlaceholder">📣</div>'}<div class="adBody"><h3>${esc(a.title)}</h3><p>${esc(a.description)}</p>${a.target_url?`<a href="${esc(a.target_url)}" target="_blank" rel="noopener">Wè plis →</a>`:''}</div></article>`}).join(''):'<div class="muted">Pa gen anons aktif kounye a.</div>';
 }
 function renderCats(){const el=document.getElementById('cats');if(!el)return;el.innerHTML=CATS.map(c=>`<div class="cat ${activeCat===c[0]?'active':''}" onclick="setCat('${c[0]}')"><span>${c[1]}</span><b>${c[2]}</b></div>`).join('')}
 function setCat(c){activeCat=c;renderCats();renderProducts()}
@@ -123,47 +123,51 @@ async function saveProduct(id){const name=document.getElementById('pn-'+id).valu
 async function addProduct(){const name=document.getElementById('pname').value.trim();if(!name)return alert('Mete non pwodwi a');await api('/api/products',{method:'POST',body:JSON.stringify({name,price:Number(document.getElementById('pprice').value||0),category:document.getElementById('pcat').value,icon:document.getElementById('picon').value||'📦'})});document.getElementById('pname').value='';await reloadAdmin();toast('Pwodwi ajoute')}
 async function delProduct(id){await api('/api/products/'+id,{method:'DELETE'});await reloadAdmin()}
 
-function renderAdsAdmin(){const box=document.getElementById('adManager');if(!box)return;box.innerHTML=ads.length?ads.map(a=>`<div class="adAdminRow"><div>${(a.image_src||a.image_data||a.image_url)?`<img src="${a.image_src||a.image_data||esc(a.image_url)}" alt="">`:'📣'}</div><div><b>${esc(a.title)}</b><small>${esc(a.description)}</small><small>${a.starts_at||'Kounye a'} → ${a.ends_at||'San dat fen'}</small></div><div><button class="${a.active?'saveBtn':''}" onclick="toggleAd(${a.id},${!a.active})">${a.active?'Aktif':'Aktive'}</button><button class="removeBtn" onclick="removeAd(${a.id})">Efase</button></div></div>`).join(''):'<div class="muted">Pa gen anons.</div>'}
-
+function renderAdsAdmin(){const box=document.getElementById('adManager');if(!box)return;box.innerHTML=ads.length?ads.map(a=>{const img=a.image_src||a.image_data||a.image_url||'';return `<div class="adAdminRow"><div>${img?`<img src="${img.startsWith('data:')?img:esc(img)}" alt="">`:'📣'}</div><div><b>${esc(a.title)}</b><small>${esc(a.description)}</small><small>${a.starts_at||'Kounye a'} → ${a.ends_at||'San dat fen'}</small></div><div><button class="${a.active?'saveBtn':''}" onclick="toggleAd(${a.id},${!a.active})">${a.active?'Aktif':'Aktive'}</button><button class="removeBtn" onclick="removeAd(${a.id})">Efase</button></div></div>`}).join(''):'<div class="muted">Pa gen anons.</div>'}
 function previewAdImage(input){
   const box=document.getElementById('adImagePreview');
-  const file=input.files&&input.files[0];
-  if(!file){box.innerHTML='';return}
-  const allowed=['image/png','image/jpeg'];
-  if(!allowed.includes(file.type)){alert('PNG, JPG oswa JPEG sèlman.');input.value='';box.innerHTML='';return}
-  if(file.size>3*1024*1024){alert('Foto a dwe pi piti pase 3 MB.');input.value='';box.innerHTML='';return}
-  const url=URL.createObjectURL(file);
-  box.innerHTML=`<img src="${url}" alt="Preview flyer"><small>${esc(file.name)}</small>`;
-}
-async function uploadAdImageFile(){
-  const input=document.getElementById('adImageFile');
   const file=input?.files?.[0];
-  if(!file)return '';
-  const fd=new FormData();fd.append('image',file);
-  const r=await fetch('/api/admin/ad-image',{method:'POST',body:fd});
-  const data=await r.json();
-  if(!r.ok)throw new Error(data.message||data.error||'Upload foto echwe');
-  return data.image_data||'';
+  if(!box)return;
+  if(!file){box.innerHTML='';return}
+  if(!['image/jpeg','image/png'].includes(file.type)){alert('JPG, JPEG oswa PNG sèlman.');input.value='';box.innerHTML='';return}
+  if(file.size>4*1024*1024){alert('Foto a dwe pi piti pase 4 MB.');input.value='';box.innerHTML='';return}
+  const reader=new FileReader();
+  reader.onload=()=>{box.innerHTML=`<img src="${reader.result}" alt="Preview flyer"><small>${esc(file.name)}</small>`};
+  reader.readAsDataURL(file);
+}
+function readAdImageData(){
+  return new Promise((resolve,reject)=>{
+    const input=document.getElementById('adImageFile');
+    const file=input?.files?.[0];
+    if(!file)return resolve('');
+    if(!['image/jpeg','image/png'].includes(file.type))return reject(new Error('JPG, JPEG oswa PNG sèlman.'));
+    if(file.size>4*1024*1024)return reject(new Error('Foto a dwe pi piti pase 4 MB.'));
+    const reader=new FileReader();
+    reader.onload=()=>resolve(String(reader.result||''));
+    reader.onerror=()=>reject(new Error('Pa ka li foto a.'));
+    reader.readAsDataURL(file);
+  });
 }
 async function addAd(){
-  const title=document.getElementById('adTitle')?.value.trim();
-  if(!title)return alert('Mete tit anons lan.');
+  const title=document.getElementById('adTitle').value.trim();
+  if(!title)return alert('Mete tit anons lan');
   let image_data='';
-  try{image_data=await uploadAdImageFile()}catch(e){return alert(e.message||'Upload foto echwe')}
-  const body={
+  try{image_data=await readAdImageData()}catch(e){return alert(e.message)}
+  const payload={
     title,
-    description:document.getElementById('adDescription')?.value.trim()||'',
-    link:document.getElementById('adLink')?.value.trim()||'',
-    image_url:document.getElementById('adImage')?.value.trim()||'',
+    description:document.getElementById('adDescription').value.trim(),
+    image_url:document.getElementById('adImage').value.trim(),
     image_data,
-    start_date:document.getElementById('adStart')?.value||'',
-    end_date:document.getElementById('adEnd')?.value||''
+    target_url:document.getElementById('adLink').value.trim(),
+    starts_at:document.getElementById('adStart').value,
+    ends_at:document.getElementById('adEnd').value,
+    active:true
   };
-  await api('/api/admin/ads',{method:'POST',body:JSON.stringify(body)});
-  ['adTitle','adDescription','adLink','adImage','adStart','adEnd'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  await api('/api/admin/ads',{method:'POST',body:JSON.stringify(payload)});
+  ['adTitle','adDescription','adImage','adLink','adStart','adEnd'].forEach(id=>document.getElementById(id).value='');
   const f=document.getElementById('adImageFile');if(f)f.value='';
   const p=document.getElementById('adImagePreview');if(p)p.innerHTML='';
-  toast('Anons ajoute');await reloadAdmin();
+  await reloadAdmin();toast('Anons ajoute');
 }
 async function toggleAd(id,active){await api('/api/admin/ads/'+id,{method:'PATCH',body:JSON.stringify({active})});await reloadAdmin()}
 async function removeAd(id){if(confirm('Efase anons sa?')){await api('/api/admin/ads/'+id,{method:'DELETE'});await reloadAdmin()}}
